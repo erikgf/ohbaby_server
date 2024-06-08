@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AsistenciaRegistroEmpleadoController;
 use App\Http\Controllers\DepartamentoUbigeoController;
 use App\Http\Controllers\DistritoUbigeoController;
 use App\Http\Controllers\EmpleadoController;
@@ -29,7 +30,6 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::apiResource("empleados", EmpleadoController::class);
     Route::apiResource("horarios", HorarioController::class);
 
-
     Route::get("ubigeo-departamentos", [DepartamentoUbigeoController::class, "index"]);
     Route::get("ubigeo-provincias/{idDepartamento}", [ProvinciaUbigeoController::class, "index"]);
     Route::get("ubigeo-distritos/{idProvincia}", [DistritoUbigeoController::class, "index"]);
@@ -41,4 +41,9 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
 
     Route::post("/empleados/finalizar-contrato/{idEmpleadoContrato}", [EmpleadoController::class, "finalizarContrato"]);
     Route::post("/asistencia/marcar/{codigoUnico}", [MarcadoEmpleadoController::class, "store"]);
+
+    Route::post("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "store"]);
+    Route::get("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "consultar"]);
+    Route::get("/asistencia-registro-empleado/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataControlSeguridad"]);
+
 });

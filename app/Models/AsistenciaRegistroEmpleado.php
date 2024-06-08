@@ -7,24 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class MarcadoEmpleado extends Model
+class AsistenciaRegistroEmpleado extends Model
 {
     use HasFactory, SoftDeletes;
-
-    protected $fillable = [
-        'id_empleado_contrato', 'hora', 'fecha', 'numero_dia_semana', 'id_punto_acceso'
-    ];
-
     protected $hidden = [
         'created_at',
         'updated_at',
         'deleted_at'
     ];
-    /**
-     * Get the puntoAcceso associated with the MarcadoEmpleado
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
+
+    protected $fillable = [
+        'id_empleado_contrato', 'fecha', 'hora_entrada_mañana', 'hora_salida_mañana', 'hora_entrada_tarde', 'hora_salida_tarde', 'numero_dia_semana', 'id_punto_acceso'
+    ];
+
+
     public function puntoAcceso(): HasOne
     {
         return $this->hasOne(PuntoAcceso::class, 'id', 'id_punto_acceso');
@@ -39,4 +35,5 @@ class MarcadoEmpleado extends Model
     {
         return $this->hasOne(EmpleadoContrato::class, 'id', 'id_empleado_contrato');
     }
+
 }

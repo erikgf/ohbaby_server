@@ -19,9 +19,9 @@ class EmpleadoFactory extends Factory
         return [
             "id_tipo_documento"=>fake()->randomElement(["D"]),
             "numero_documento"=>fake()->numerify("########"),
-            "apellido_paterno"=>fake()->name(),
-            "apellido_materno"=>fake()->name(),
-            "nombres"=>fake()->name(),
+            "apellido_paterno"=>fake()->firstName(),
+            "apellido_materno"=>fake()->firstName(),
+            "nombres"=>fake()->firstName(),
             "codigo_unico"=>fake()->lexify("???"),
             "distrito_ubigeo"=>"150101",
             "pais"=>"PE",
