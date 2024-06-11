@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AsistenciaRegistroEmpleadoRequest extends FormRequest
 {
@@ -19,8 +20,7 @@ class AsistenciaRegistroEmpleadoRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
+    public function rules(): array {
         return [
             "codigo_unico"=>"required|string|size:2",
             "fecha"=>"required|date",

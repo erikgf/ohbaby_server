@@ -7,6 +7,7 @@ use App\Models\AsistenciaRegistroEmpleado;
 use App\Models\EmpleadoContrato;
 use App\Traits\FechaUtilTrait;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\DNS1D;
 use Milon\Barcode\Facades\DNS1DFacade;
@@ -41,10 +42,13 @@ class AsistenciaRegistroEmpleadoService{
             ];
         }
 
-        $nombreEmpleado = $empleado->nombres." ".$empleado->apellido_paterno." ".$empleado->apellido_materno;
-
         $idEmpleadoContrato = $contratoActivo->id;
 
+        if ($this->validarRepetidoDia($fecha, $idEmpleadoContrato)){
+            throw new \Exception("Este colaborador ya tiene una asistencia hoy.", Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $nombreEmpleado = $empleado->nombres." ".$empleado->apellido_paterno." ".$empleado->apellido_materno;
         $numeroDiaSemana = date('N', strtotime($fecha));
 
         $idPuntoAcceso  = 1;
@@ -124,6 +128,10 @@ class AsistenciaRegistroEmpleadoService{
             ];
         }
 
+        if ($this->validarRepetidoDia($fecha, $contratoActivo->id)){
+            throw new \Exception("Este colaborador ya tiene una asistencia hoy.", Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $nombreEmpleado = $empleado->nombres." ".$empleado->apellido_paterno." ".$empleado->apellido_materno;
 
         return [
@@ -138,4 +146,9 @@ class AsistenciaRegistroEmpleadoService{
             "tarde_salida"=>"18:00",
         ];
     }
+
+    public function validarRepetidoDia(string $fecha, int $id_empleado_contrato){
+        return  AsistenciaRegistroEmpleado::where(["fecha"=>$fecha, "id_empleado_contrato"=>$id_empleado_contrato])->exists();
+    }
+
 }
