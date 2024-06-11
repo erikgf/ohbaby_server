@@ -85,16 +85,15 @@ class AsistenciaRegistroEmpleadoService{
             $nombres_empleado = $item->empleado->apellido_paterno." ".$item->empleado->apellido_materno.", ".$item->empleado->nombres;
             $qr = $fechaComprimida."_".$codigo_unico;
 
-            /*
-            $qrBase64 = base64_decode(DNS1DFacade::getBarcodePNG($qr, 'C128', 1, 30));
+            $qrBase64 = base64_decode(DNS1D::getBarcodePNG($qr, 'C128', 1, 30));
             Storage::disk('public')->put($qr.".png", $qrBase64);
             $path = Storage::disk('public')->path($qr.".png");
-            */
+
             return [
                 "codigo"=>strtoupper($codigo_unico),
                 "nombres_empleado"=>$nombres_empleado,
-                "qr"=>DNS1DFacade::getBarcodePNG($qr, 'C128', 1, 30)
-                //"qr" => $path
+                //"qr"=>DNS1DFacade::getBarcodePNG($qr, 'C128', 1, 30)
+                "qr" => $path
             ];
         });
 
