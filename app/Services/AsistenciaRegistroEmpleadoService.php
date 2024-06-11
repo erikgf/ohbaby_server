@@ -83,7 +83,7 @@ class AsistenciaRegistroEmpleadoService{
         $empleados = $empleados->map(function($item) use ($fechaComprimida){
             $codigo_unico = $item->empleado->codigo_unico;
             $nombres_empleado = $item->empleado->apellido_paterno." ".$item->empleado->apellido_materno.", ".$item->empleado->nombres;
-            $qr = $fechaComprimida."|".$codigo_unico;
+            $qr = $fechaComprimida.".".$codigo_unico;
 
             return [
                 "codigo"=>strtoupper($codigo_unico),
