@@ -1,5 +1,6 @@
 <html>
 <head>
+  <meta charset="UTF-8">
   <style>
     body{
         font-family: sans-serif;
@@ -105,7 +106,8 @@
                 <tr>
                     <td>{{$loop->index + 1}}</td>
                     <td class="text-center cell-barcode">
-                        <img src="data:image/png;base64,{{$emp['qr']}}" alt="BarCode">
+                        <!-- <img src="{{$emp['qr']}}" alt="BarCode" > -->
+                        <img src="data:image/png;base64,{{$emp['qr']}}" alt="BarCode" >
                     </td>
                     <td>{{$emp["nombres_empleado"]}}</td>
                     <td class="cell-horas"></td>

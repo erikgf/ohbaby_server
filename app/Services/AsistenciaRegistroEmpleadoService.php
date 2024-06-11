@@ -7,6 +7,8 @@ use App\Models\AsistenciaRegistroEmpleado;
 use App\Models\EmpleadoContrato;
 use App\Traits\FechaUtilTrait;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Milon\Barcode\DNS1D;
 use Milon\Barcode\Facades\DNS1DFacade;
 
 class AsistenciaRegistroEmpleadoService{
@@ -81,11 +83,18 @@ class AsistenciaRegistroEmpleadoService{
         $empleados = $empleados->map(function($item) use ($fechaComprimida){
             $codigo_unico = $item->empleado->codigo_unico;
             $nombres_empleado = $item->empleado->apellido_paterno." ".$item->empleado->apellido_materno.", ".$item->empleado->nombres;
-            $qr = $fechaComprimida."|".$codigo_unico;
+            $qr = $fechaComprimida."_".$codigo_unico;
+
+            /*
+            $qrBase64 = base64_decode(DNS1DFacade::getBarcodePNG($qr, 'C128', 1, 30));
+            Storage::disk('public')->put($qr.".png", $qrBase64);
+            $path = Storage::disk('public')->path($qr.".png");
+            */
             return [
                 "codigo"=>strtoupper($codigo_unico),
                 "nombres_empleado"=>$nombres_empleado,
                 "qr"=>DNS1DFacade::getBarcodePNG($qr, 'C128', 1, 30)
+                //"qr" => $path
             ];
         });
 
