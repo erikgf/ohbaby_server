@@ -105,9 +105,8 @@
             @foreach ($empleados as $emp)
                 <tr>
                     <td>{{$loop->index + 1}}</td>
-                    <td class="text-center cell-barcode">
-                        <!-- <img src="{{$emp['qr']}}" alt="BarCode" > -->
-                        <img src="data:image/png;base64,{{$emp['qr']}}" alt="BarCode" >
+                    <td class="text-center cell-barcode">		   
+			{!!$emp["qr"]!!}
                     </td>
                     <td>{{$emp["nombres_empleado"]}}</td>
                     <td class="cell-horas"></td>
