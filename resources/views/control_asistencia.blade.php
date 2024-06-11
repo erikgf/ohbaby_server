@@ -66,10 +66,13 @@
 
     .cell-barcode{
         padding: 4.5px;
+        justify-content: center;
+        display: flex;
     }
 
     .cell-code{
-        width: 50px;
+        width: 160px;
+        padding-left: 10px;
     }
 
     .cell-horas{

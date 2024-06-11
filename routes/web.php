@@ -19,7 +19,7 @@ Route::get('/pdf/control-asistencia/{fecha}', function (string $fecha) {
     $data = (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha);
     $pdf = Pdf::loadView('control_asistencia', $data);
     return $pdf->download('control.asistencia.pdf');
-//    return view("control_asistencia", $data);
+   // return view("control_asistencia", $data);
 });
 
 Route::get('/', function () {
