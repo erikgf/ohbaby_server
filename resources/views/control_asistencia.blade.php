@@ -59,8 +59,17 @@
       text-align: left;
     }
 
+    .cell-index{
+        width: 30px;
+        text-align: center;
+    }
+
     .cell-barcode{
-        width: 100px;
+        padding: 4.5px;
+    }
+
+    .cell-code{
+        width: 50px;
     }
 
     .cell-horas{
@@ -89,8 +98,8 @@
         <thead>
             <tr>
                 <th rowspan="2">N°</th>
-                <th rowspan="2">CÓD.</th>
-                <th rowspan="2">NOMBRES</th>
+                <th rowspan="2">CÓD.BAR.</th>
+                <th rowspan="2">CÓDIGO</th>
                 <th colspan="2">MAÑANA</th>
                 <th colspan="2">TARDE</th>
             </tr>
@@ -104,12 +113,11 @@
         <tbody>
             @foreach ($empleados as $emp)
                 <tr>
-                    <td>{{$loop->index + 1}}</td>
+                    <td class="cell-index">{{$loop->index + 1}}</td>
                     <td class="text-center cell-barcode">
-                        <img src="{{$emp['qr']}}" alt="BarCode" >
-                        <!-- <img src="data:image/png;base64,{{$emp['qr']}}" alt="BarCode" > -->
+                        {!!$emp["qr"]!!}
                     </td>
-                    <td>{{$emp["nombres_empleado"]}}</td>
+                    <td class="cell-code">{{$emp["codigo"]}}</td>
                     <td class="cell-horas"></td>
                     <td class="cell-horas"></td>
                     <td class="cell-horas"></td>
