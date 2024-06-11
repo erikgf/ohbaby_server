@@ -22,7 +22,7 @@ class AsistenciaRegistroEmpleadoController extends Controller
     public function consultar(Request $request)
     {
         $data = $request->validate([
-            "codigo_unico"=>"required|string|size:3",
+            "codigo_unico"=>"required|string|size:2",
             "fecha"=>"required|string|size:8"
         ]);
 
