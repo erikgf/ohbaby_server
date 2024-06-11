@@ -71,7 +71,7 @@
     }
 
     .cell-code{
-        width: 160px;
+        width: 50px;
         padding-left: 10px;
     }
 

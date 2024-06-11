@@ -88,7 +88,7 @@ class AsistenciaRegistroEmpleadoService{
             return [
                 "codigo"=>strtoupper($codigo_unico),
                 "nombres_empleado"=>$nombres_empleado,
-                "qr"=>DNS1D::getBarcodeHTML($qr,'C128', 1.25, 50)//asset("storage/$qr.png")
+                "qr"=>DNS1D::getBarcodeHTML($qr,'C128', 2, 55)//asset("storage/$qr.png")
 	        ];
         });
 
