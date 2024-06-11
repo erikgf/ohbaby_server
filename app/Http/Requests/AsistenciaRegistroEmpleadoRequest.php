@@ -22,7 +22,7 @@ class AsistenciaRegistroEmpleadoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "codigo_unico"=>"required|string|size:3",
+            "codigo_unico"=>"required|string|size:2",
             "fecha"=>"required|date",
             "hora_entrada_mañana"=>"required|string|size:5",
             "hora_salida_mañana"=>"required|string|size:5",
