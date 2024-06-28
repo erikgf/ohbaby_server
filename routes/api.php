@@ -31,7 +31,7 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::apiResource("empleados", EmpleadoController::class);
     Route::apiResource("horarios", HorarioController::class);
     Route::apiResource("usuarios", UsuarioController::class);
-    Route::post("usuarios/cambiar-clave", [UsuarioController::class, "cambiarClave"]);
+    Route::post("usuarios/cambiar-clave/{idUsuario}", [UsuarioController::class, "cambiarClave"]);
 
     Route::get("ubigeo-departamentos", [DepartamentoUbigeoController::class, "index"]);
     Route::get("ubigeo-provincias/{idDepartamento}", [ProvinciaUbigeoController::class, "index"]);
