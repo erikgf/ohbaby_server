@@ -9,6 +9,7 @@ use App\Http\Controllers\HorarioEmpleadoContratoController;
 use App\Http\Controllers\MarcadoEmpleadoController;
 use App\Http\Controllers\ProvinciaUbigeoController;
 use App\Http\Controllers\SesionController;
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,8 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
 
     Route::apiResource("empleados", EmpleadoController::class);
     Route::apiResource("horarios", HorarioController::class);
+    Route::apiResource("usuarios", UsuarioController::class);
+    Route::post("usuarios/cambiar-clave", [UsuarioController::class, "cambiarClave"]);
 
     Route::get("ubigeo-departamentos", [DepartamentoUbigeoController::class, "index"]);
     Route::get("ubigeo-provincias/{idDepartamento}", [ProvinciaUbigeoController::class, "index"]);
