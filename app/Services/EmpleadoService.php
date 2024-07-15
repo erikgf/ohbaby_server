@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTO\EmpleadoDTO;
+use App\Http\Resources\EmpleadoBuscarResource;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
 use App\Models\EmpleadoContrato;
@@ -27,6 +28,8 @@ class EmpleadoService{
             "direccion"=>$empleadoDTO->direccion,
             "distrito_ubigeo"=>$empleadoDTO->distrito_ubigeo,
             "pais"=>$empleadoDTO->pais,
+            "id_empresa"=>$empleadoDTO->id_empresa,
+            "numero_orden"=>$empleadoDTO->numero_orden
         ]);
 
         if (count($empleadoDTO->contratos) > 0){
@@ -70,6 +73,8 @@ class EmpleadoService{
             "direccion"=>$empleadoDTO->direccion,
             "distrito_ubigeo"=>$empleadoDTO->distrito_ubigeo,
             "pais"=>$empleadoDTO->pais,
+            "id_empresa"=>$empleadoDTO->id_empresa,
+            "numero_orden"=>$empleadoDTO->numero_orden
         ]);
 
         $empleadoEditado->save();
@@ -162,6 +167,19 @@ class EmpleadoService{
         ]);
 
         return $fechaCese;
+    }
+
+    public function buscarTerm(string $searchTerm){
+        $empleados = Empleado::whereHas("contratoActivo")
+                                ->with("contratoActivo.horarios.horarioDetalles")
+                                ->where(function($q) use($searchTerm)
+                                    {
+                                        $q->where("nombres", "like", '%'.$searchTerm.'%')
+                                            ->orWhere("apellido_paterno", "like", '%'.$searchTerm.'%')
+                                            ->orWhere("apellido_materno", "like", '%'.$searchTerm.'%');
+                                })
+                                ->get();
+        return EmpleadoBuscarResource::collection($empleados);
     }
 
 

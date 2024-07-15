@@ -51,6 +51,8 @@ trait FechaUtilTrait {
                 return "VIERNES";
             case "6":
                 return "SÁBADO";
+            case "7":
+                return "DOMINGO";
             default:
                 return "NINGUNO";
         }

@@ -4,6 +4,7 @@ use App\Http\Controllers\AsistenciaRegistroEmpleadoController;
 use App\Http\Controllers\DepartamentoUbigeoController;
 use App\Http\Controllers\DistritoUbigeoController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\HorarioEmpleadoContratoController;
 use App\Http\Controllers\MarcadoEmpleadoController;
@@ -27,6 +28,8 @@ Route::post("sesion/iniciar", [SesionController::class, "iniciarSesion"]);
 
 Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::post("sesion/cerrar", [SesionController::class, "cerrarSesion"]);
+
+    Route::apiResource("empresas", EmpresaController::class);
 
     Route::apiResource("empleados", EmpleadoController::class);
     Route::apiResource("horarios", HorarioController::class);

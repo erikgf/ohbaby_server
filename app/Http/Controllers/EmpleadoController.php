@@ -11,8 +11,16 @@ use Illuminate\Support\Facades\DB;
 class EmpleadoController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
+        $data = $request->validate([
+            "searchTerm" => "nullable|string|max:300"
+        ]);
+
+        if (isset($data["searchTerm"])){
+            return (new EmpleadoService)->buscarTerm($data["searchTerm"]);
+        }
+
         return (new EmpleadoService)->listar();
     }
 
@@ -36,6 +44,8 @@ class EmpleadoController extends Controller
         $empleadoDTO->distrito_ubigeo = $data["distrito_ubigeo"] ?? NULL;
         $empleadoDTO->pais = $data["pais"] ?? NULL;
         $empleadoDTO->contratos = $data["contratos"] ?? [];
+        $empleadoDTO->id_empresa = $data["id_empresa"];
+        $empleadoDTO->numero_orden = $data["numero_orden"];
 
         DB::beginTransaction();
         $empleado =  (new EmpleadoService)->registrar($empleadoDTO);
@@ -71,6 +81,9 @@ class EmpleadoController extends Controller
         $empleadoDTO->distrito_ubigeo = $data["distrito_ubigeo"] ?? NULL;
         $empleadoDTO->pais = $data["pais"] ?? NULL;
         $empleadoDTO->contratos = $data["contratos"] ?? [];
+        $empleadoDTO->id_empresa = $data["id_empresa"];
+        $empleadoDTO->numero_orden = $data["numero_orden"];
+
         DB::beginTransaction();
         $empleado = (new EmpleadoService)->editar($empleadoDTO, $id);
         DB::commit();

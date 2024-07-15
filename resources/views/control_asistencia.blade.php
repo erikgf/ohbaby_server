@@ -81,7 +81,7 @@
   </style>
 <body>
   <header>
-    <h3>CONTROL DE SEGURIDAD</h3>
+    <h3>CONTROL DE SEGURIDAD ({{$rotuloTitulo}})</h3>
     <p><b>Día: </b>{{$diaSemana}}. <b>Fecha:</b> {{$dia}} de {{$mes}} del {{$anio}}</p>
   </header>
   <footer>

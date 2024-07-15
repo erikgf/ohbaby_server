@@ -33,7 +33,7 @@ class HorarioEmpleadoContratoService{
 
         $now = Carbon::now();
 
-        $horario->empleadoContratos()->delete();
+        $horario->empleadoContratos()->detach();
 
         $cantidadRegistrosRepetidos = EmpleadoContrato::whereIn("id", $empleadoContratos)
                 ->whereHas("horarios", function($q) use($horario){

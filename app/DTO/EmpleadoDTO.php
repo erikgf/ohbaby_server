@@ -15,4 +15,6 @@ class EmpleadoDTO {
     public ?string $pais;
     public ?string $fecha_nacimiento;
     public array $contratos;
+    public ?int $id_empresa;
+    public ?int $numero_orden;
 }

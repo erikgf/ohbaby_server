@@ -35,10 +35,7 @@ class AsistenciaRegistroEmpleadoController extends Controller
 
     public function getDataControlSeguridad(string $fecha)
     {
-        DB::beginTransaction();
         $res =  (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha);
-        DB::commit();
-
         return $res;
     }
 }

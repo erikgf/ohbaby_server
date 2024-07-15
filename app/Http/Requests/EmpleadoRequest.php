@@ -38,6 +38,8 @@ class EmpleadoRequest extends FormRequest
             "contratos.*.salario"=>"required|numeric|min:0",
             "contratos.*.dias_trabajo"=>"required|numeric|min:1",
             "contratos.*.horas_dia"=>"required|numeric|min:1",
+            "id_empresa"=>"required|integer",
+            "numero_orden"=>"required|integer"
         ];
     }
 }

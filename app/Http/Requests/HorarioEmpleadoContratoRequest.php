@@ -22,7 +22,7 @@ class HorarioEmpleadoContratoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "empleados_contratos"=>"required|array",
+            "empleados_contratos"=>"nullable|array",
             "empleados_contratos.*"=>"required|integer|exists:empleado_contratos,id"
         ];
     }

@@ -2,6 +2,7 @@
 
 use App\Services\AsistenciaRegistroEmpleadoService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,11 +16,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/pdf/control-asistencia/{fecha}', function (string $fecha) {
-    $data = (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha);
+Route::get('/pdf/control-asistencia/{fecha}', function (Request $request, string $fecha) {
+    $data = $request->validate([
+        "key"=>"nullable|string"
+    ]);
+
+    $fileName = "control.asistencia.pdf";
+    $tipo = "";
+    if (isset($data["key"])){
+        if ($data["key"] == "varios"){
+            $tipo = "varios";
+            $fileName = "control.asistencia.varios.pdf";
+        } else {
+            $tipo = "no-varios";
+            $fileName = "control.asistencia.novarios.pdf";
+        }
+    }
+
+    $data = (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha, tipo: $tipo);
     $pdf = Pdf::loadView('control_asistencia', $data);
-    return $pdf->download('control.asistencia.pdf');
-   // return view("control_asistencia", $data);
+    return $pdf->download($fileName);
 });
 
 Route::get('/', function () {

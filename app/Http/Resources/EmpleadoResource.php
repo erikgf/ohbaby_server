@@ -21,13 +21,16 @@ class EmpleadoResource extends JsonResource
             "apellidoMaterno"=>$this->apellido_materno,
             "apellidoPaterno"=>$this->apellido_paterno,
             "nombres"=>$this->nombres,
+            "descripcion"=>$this->apellido_paterno." ".$this->apellido_materno.", ".$this->nombres,
             "codigoUnico"=>$this->codigo_unico,
             "direccion"=>$this->direccion,
             "distritoUbigeo"=>$this->distrito_ubigeo,
             "pais"=>$this->pais,
             "fechaNacimiento"=>date("d-m-Y", strtotime($this->fecha_nacimiento)),
             "fechaNacimientoRaw"=>$this->fecha_nacimiento,
-            "contratos"=>EmpleadoContratoSoloContratosResource::collection($this->contratos)
+            "contratos"=>EmpleadoContratoSoloContratosResource::collection($this->contratos),
+            "id_empresa"=>$this->id_empresa,
+            "numero_orden"=>$this->numero_orden
         ];
     }
 }

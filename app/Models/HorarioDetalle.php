@@ -26,7 +26,7 @@ class HorarioDetalle extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function Horario(): BelongsTo
+    public function horario(): BelongsTo
     {
         return $this->belongsTo(Horario::class, 'id', 'id_horario');
     }

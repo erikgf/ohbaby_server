@@ -23,6 +23,7 @@ class EmpleadoContratoSoloContratosResource extends JsonResource
             "costoDia"=>$this->costo_dia,
             "diasTrabajo"=>$this->dias_trabajo,
             "horasDia"=>$this->horas_dia,
+            "horarios"=>$this->horarios
         ];
     }
 }

@@ -12,7 +12,9 @@ class Empleado extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['id_tipo_documento', 'numero_documento', 'apellido_paterno','apellido_materno','nombres','codigo_unico','direccion','distrito_ubigeo', 'pais', 'fecha_nacimiento'];
+    protected $fillable = ['id_tipo_documento', 'numero_documento', 'apellido_paterno','apellido_materno','nombres',
+                    'codigo_unico','direccion','distrito_ubigeo', 'pais', 'fecha_nacimiento',
+                    'id_empresa','numero_orden'];
 
     protected $hidden = [
         'created_at',
@@ -33,5 +35,10 @@ class Empleado extends Model
     public function contratoActivo(): HasOne
     {
         return $this->hasOne(EmpleadoContrato::class, 'id_empleado', 'id')->whereNull("fecha_fin");
+    }
+
+    public function empresa(): HasOne
+    {
+        return $this->hasOne(Empresa::class, 'id_empresa', 'id');
     }
 }

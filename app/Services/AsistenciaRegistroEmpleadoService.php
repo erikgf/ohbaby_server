@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Empleado;
 use App\Models\AsistenciaRegistroEmpleado;
 use App\Models\EmpleadoContrato;
+use App\Models\Empresa;
 use App\Traits\FechaUtilTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
@@ -72,7 +73,7 @@ class AsistenciaRegistroEmpleadoService{
         ];
     }
 
-    public function getDataControlSeguridad(string $fecha) {
+    public function getDataControlSeguridad(string $fecha, string $tipo = "") {
 
         $time = strtotime($fecha);
         $diaSemana = $this->getDiaSemanaNombre(date('N', $time));
@@ -82,7 +83,26 @@ class AsistenciaRegistroEmpleadoService{
 
         $fechaComprimida = date("Ymd", $time);
 
-        $empleados = EmpleadoContrato::with(["empleado"])->get();
+        $query  =   EmpleadoContrato::with(["empleado"])
+                        ->join('empleados', 'empleado_contratos.id_empleado', '=', 'empleados.id')
+                        ->orderBy('empleados.numero_orden')
+                        ->select('empleado_contratos.*','empleados.id','empleado_contratos.id_empleado');
+
+        $rotuloTitulo = "TODOS";
+        if ($tipo != ""){
+            $empresaFiltro = Empresa::where(["numero_documento"=>"99999999999"])->first();
+            if ($empresaFiltro){
+                if ($tipo === "varios"){
+                    $query->whereIn("id_empresa", [$empresaFiltro->id]);
+                    $rotuloTitulo = "OTROS";
+                } else {
+                    $query->whereNotIn("id_empresa", [$empresaFiltro->id]);
+                    $rotuloTitulo = "VARIOS";
+                }
+            }
+        }
+
+        $empleados = $query->get();
 
         $empleados = $empleados->map(function($item) use ($fechaComprimida){
             $codigo_unico = $item->empleado->codigo_unico;
@@ -101,7 +121,8 @@ class AsistenciaRegistroEmpleadoService{
             "mes"=>$mes,
             "anio"=>$año,
             "diaSemana"=>$diaSemana,
-            "empleados"=>$empleados
+            "empleados"=>$empleados,
+            "rotuloTitulo"=>$rotuloTitulo
         ];
     }
 
