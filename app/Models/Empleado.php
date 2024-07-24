@@ -39,6 +39,6 @@ class Empleado extends Model
 
     public function empresa(): HasOne
     {
-        return $this->hasOne(Empresa::class, 'id_empresa', 'id');
+        return $this->hasOne(Empresa::class, 'id', 'id_empresa');
     }
 }

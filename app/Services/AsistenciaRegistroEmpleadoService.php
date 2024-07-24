@@ -86,6 +86,7 @@ class AsistenciaRegistroEmpleadoService{
         $query  =   EmpleadoContrato::with(["empleado"])
                         ->join('empleados', 'empleado_contratos.id_empleado', '=', 'empleados.id')
                         ->orderBy('empleados.numero_orden')
+                        ->whereNull("fecha_fin")
                         ->select('empleado_contratos.*','empleados.id','empleado_contratos.id_empleado');
 
         $rotuloTitulo = "TODOS";

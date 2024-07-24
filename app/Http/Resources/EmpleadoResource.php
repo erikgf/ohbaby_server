@@ -14,6 +14,7 @@ class EmpleadoResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $empresa = $this->whenLoaded("empresa", function () { return $this->empresa ?? null; });
         return [
             "id"=>$this->id,
             "idTipoDocumento"=>$this->id_tipo_documento == "R" ? "RUC": ($this->id_tipo_documento == "D" ? "DNI": "CE"),
@@ -29,7 +30,10 @@ class EmpleadoResource extends JsonResource
             "fechaNacimiento"=>date("d-m-Y", strtotime($this->fecha_nacimiento)),
             "fechaNacimientoRaw"=>$this->fecha_nacimiento,
             "contratos"=>EmpleadoContratoSoloContratosResource::collection($this->contratos),
-            "id_empresa"=>$this->id_empresa,
+            "idEmpresa"=>$empresa?->id ?? "",
+            "id_empresa"=>$empresa?->id ?? "",
+            "empresaDesc"=> $empresa?->razon_social ?? "",
+            "numeroOrden"=>$this->numero_orden,
             "numero_orden"=>$this->numero_orden
         ];
     }

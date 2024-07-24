@@ -147,12 +147,12 @@ class EmpleadoService{
     }
 
     public function listar() : ResourceCollection{
-        $empleados = Empleado::with("contratos")->get();
+        $empleados = Empleado::with(["contratos","empresa"])->get();
         return EmpleadoResource::collection($empleados);
     }
 
     public function leer(int $id) : EmpleadoResource{
-        $empleado = Empleado::with(["contratos"=>function($c){
+        $empleado = Empleado::with(["empresa","contratos"=>function($c){
             $c->orderBy("fecha_inicio", "DESC");
         }])->findOrFail($id);
         return new EmpleadoResource($empleado);
