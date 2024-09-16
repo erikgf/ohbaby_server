@@ -14,14 +14,15 @@ class EmpleadoController extends Controller
     public function index(Request $request)
     {
         $data = $request->validate([
-            "searchTerm" => "nullable|string|max:300"
+            "searchTerm" => "nullable|string|max:300",
+            "id_empresa"=>"nullable|string"
         ]);
 
         if (isset($data["searchTerm"])){
             return (new EmpleadoService)->buscarTerm($data["searchTerm"]);
         }
 
-        return (new EmpleadoService)->listar();
+        return (new EmpleadoService)->listar($data);
     }
 
     /**
@@ -46,6 +47,12 @@ class EmpleadoController extends Controller
         $empleadoDTO->contratos = $data["contratos"] ?? [];
         $empleadoDTO->id_empresa = $data["id_empresa"];
         $empleadoDTO->numero_orden = $data["numero_orden"];
+        $empleadoDTO->celular = @$data["celular"];
+        $empleadoDTO->sexo = $data["sexo"];
+        $empleadoDTO->telefono_referencia = @$data["telefono_referencia"];
+        $empleadoDTO->nombre_familiar = @$data["nombre_familiar"];
+        $empleadoDTO->puesto = $data["puesto"];
+        $empleadoDTO->estado_civil = $data["estado_civil"];
 
         DB::beginTransaction();
         $empleado =  (new EmpleadoService)->registrar($empleadoDTO);
@@ -83,6 +90,12 @@ class EmpleadoController extends Controller
         $empleadoDTO->contratos = $data["contratos"] ?? [];
         $empleadoDTO->id_empresa = $data["id_empresa"];
         $empleadoDTO->numero_orden = $data["numero_orden"];
+        $empleadoDTO->celular = @$data["celular"];
+        $empleadoDTO->sexo = @$data["sexo"];
+        $empleadoDTO->telefono_referencia = @$data["telefono_referencia"];
+        $empleadoDTO->nombre_familiar = @$data["nombre_familiar"];
+        $empleadoDTO->puesto = @$data["puesto"];
+        $empleadoDTO->estado_civil = @$data["estado_civil"];
 
         DB::beginTransaction();
         $empleado = (new EmpleadoService)->editar($empleadoDTO, $id);
@@ -106,8 +119,12 @@ class EmpleadoController extends Controller
 
     public function finalizarContrato(Request $request, int $idEmpleadoContrato)
     {
+        $data = $request->validate([
+            "fecha_cese"=>"required|date"
+        ]);
+
         DB::beginTransaction();
-        $fechaCese = (new EmpleadoService)->finalizarContrato($idEmpleadoContrato);
+        $fechaCese = (new EmpleadoService)->finalizarContrato($idEmpleadoContrato, $data["fecha_cese"]);
         DB::commit();
 
         return $fechaCese;

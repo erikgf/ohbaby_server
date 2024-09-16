@@ -13,8 +13,9 @@ class Empleado extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = ['id_tipo_documento', 'numero_documento', 'apellido_paterno','apellido_materno','nombres',
-                    'codigo_unico','direccion','distrito_ubigeo', 'pais', 'fecha_nacimiento',
-                    'id_empresa','numero_orden'];
+                            'codigo_unico','direccion','distrito_ubigeo', 'pais', 'fecha_nacimiento',
+                            'id_empresa','numero_orden',
+                            'celular','sexo','telefono_referencia','nombre_familiar','puesto','estado_civil'];
 
     protected $hidden = [
         'created_at',

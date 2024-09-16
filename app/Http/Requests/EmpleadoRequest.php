@@ -39,7 +39,13 @@ class EmpleadoRequest extends FormRequest
             "contratos.*.dias_trabajo"=>"required|numeric|min:1",
             "contratos.*.horas_dia"=>"required|numeric|min:1",
             "id_empresa"=>"required|integer",
-            "numero_orden"=>"required|integer"
+            "numero_orden"=>"required|integer",
+            "celular"=>"nullable|string|max:15|unique:empleados,celular,except,id",
+            "telefono_referencia"=>"nullable|string|max:15",
+            "nombre_familiar"=>"nullable|string|max:200",
+            "puesto"=>"required|string|max:200",
+            "sexo"=>"required|string|size:1|in:M,F",
+            "estado_civil"=>"required|string|size:1|in:S,C,V,D",
         ];
     }
 }

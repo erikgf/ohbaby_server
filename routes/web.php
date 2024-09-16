@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Resources\EntregaListaResource;
 use App\Services\AsistenciaRegistroEmpleadoService;
+use App\Services\EntregaService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +41,22 @@ Route::get('/pdf/control-asistencia/{fecha}', function (Request $request, string
     return $pdf->download($fileName);
 });
 
+Route::get('/test', function () {
+    $r = [];
+    $fecha = "2024-05-05";
+    $fecha1 = Carbon::parse($fecha)->addMonthsNoOverflow(1)->startOfMonth()->format("Y-m-d");
+    $fecha2 = Carbon::parse($fecha1)->addMonthsNoOverflow(1)->startOfMonth()->format("Y-m-d");
+    $fecha3 = Carbon::parse($fecha2)->addMonthsNoOverflow(1)->startOfMonth()->format("Y-m-d");
+
+    $r = [
+        $fecha, $fecha1, $fecha2, $fecha3
+    ];
+
+    return $r;
+});
+
+
 Route::get('/', function () {
+    EntregaListaResource::collection((new EntregaService)->listar([]));
     return view('welcome');
 });

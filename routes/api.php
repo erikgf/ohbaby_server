@@ -3,15 +3,17 @@
 use App\Http\Controllers\AsistenciaRegistroEmpleadoController;
 use App\Http\Controllers\DepartamentoUbigeoController;
 use App\Http\Controllers\DistritoUbigeoController;
+use App\Http\Controllers\EmpleadoContratoController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\EntregaController;
 use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\HorarioEmpleadoContratoController;
 use App\Http\Controllers\MarcadoEmpleadoController;
 use App\Http\Controllers\ProvinciaUbigeoController;
 use App\Http\Controllers\SesionController;
+use App\Http\Controllers\TipoEntregaController;
 use App\Http\Controllers\UsuarioController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,9 +33,13 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
 
     Route::apiResource("empresas", EmpresaController::class);
 
+    Route::apiResource("empleados-contratos", EmpleadoContratoController::class);
     Route::apiResource("empleados", EmpleadoController::class);
     Route::apiResource("horarios", HorarioController::class);
     Route::apiResource("usuarios", UsuarioController::class);
+    Route::apiResource("entregas", EntregaController::class);
+    Route::apiResource("tipo-entregas", TipoEntregaController::class);
+
     Route::post("usuarios/cambiar-clave/{idUsuario}", [UsuarioController::class, "cambiarClave"]);
 
     Route::get("ubigeo-departamentos", [DepartamentoUbigeoController::class, "index"]);

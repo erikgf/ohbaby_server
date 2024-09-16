@@ -34,7 +34,14 @@ class EmpleadoResource extends JsonResource
             "id_empresa"=>$empresa?->id ?? "",
             "empresaDesc"=> $empresa?->razon_social ?? "",
             "numeroOrden"=>$this->numero_orden,
-            "numero_orden"=>$this->numero_orden
+            "numero_orden"=>$this->numero_orden,
+            "celular"=> $this->celular,
+            "telefonoReferencia"=> $this->telefono_referencia,
+            "nombreFamiliar"=> $this->nombre_familiar,
+            "sexo"=> $this->sexo,
+            "puesto"=> $this->puesto,
+            "estadoCivil"=> $this->estado_civil,
+            "celular"=> $this->celular,
         ];
     }
 }

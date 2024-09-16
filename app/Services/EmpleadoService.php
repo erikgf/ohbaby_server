@@ -8,7 +8,6 @@ use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
 use App\Models\EmpleadoContrato;
 use App\Traits\EmpleadoUtilTrait;
-use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 
@@ -29,7 +28,13 @@ class EmpleadoService{
             "distrito_ubigeo"=>$empleadoDTO->distrito_ubigeo,
             "pais"=>$empleadoDTO->pais,
             "id_empresa"=>$empleadoDTO->id_empresa,
-            "numero_orden"=>$empleadoDTO->numero_orden
+            "numero_orden"=>$empleadoDTO->numero_orden,
+            "celular"=>$empleadoDTO->celular,
+            "sexo"=>$empleadoDTO->sexo,
+            "telefono_referencia"=>$empleadoDTO->telefono_referencia,
+            "nombre_familiar"=>$empleadoDTO->nombre_familiar,
+            "puesto"=>$empleadoDTO->puesto,
+            'estado_civil'=>$empleadoDTO->estado_civil
         ]);
 
         if (count($empleadoDTO->contratos) > 0){
@@ -55,6 +60,8 @@ class EmpleadoService{
             $empleado->contratos()->saveMany($contratos);
         }
 
+        $empleado->load("empresa");
+
         return new EmpleadoResource($empleado);
     }
 
@@ -74,7 +81,13 @@ class EmpleadoService{
             "distrito_ubigeo"=>$empleadoDTO->distrito_ubigeo,
             "pais"=>$empleadoDTO->pais,
             "id_empresa"=>$empleadoDTO->id_empresa,
-            "numero_orden"=>$empleadoDTO->numero_orden
+            "numero_orden"=>$empleadoDTO->numero_orden,
+            "celular"=>$empleadoDTO->celular,
+            "sexo"=>$empleadoDTO->sexo,
+            "telefono_referencia"=>$empleadoDTO->telefono_referencia,
+            "nombre_familiar"=>$empleadoDTO->nombre_familiar,
+            "puesto"=>$empleadoDTO->puesto,
+            'estado_civil'=>$empleadoDTO->estado_civil
         ]);
 
         $empleadoEditado->save();
@@ -133,6 +146,7 @@ class EmpleadoService{
         }
 
         $empleadoEditado->load("contratos");
+        $empleadoEditado->load("empresa");
 
         return new EmpleadoResource($empleadoEditado);
     }
@@ -146,8 +160,15 @@ class EmpleadoService{
         return $empleado->id;
     }
 
-    public function listar() : ResourceCollection{
-        $empleados = Empleado::with(["contratos","empresa"])->get();
+    public function listar($data) : ResourceCollection{
+        $id_empresa = @$data["id_empresa"];
+
+        $empleados = Empleado::query()
+                        ->with(["contratos","empresa"])
+                        ->when($id_empresa && $id_empresa != config("globals.ID_TODOS_LOS_ITEMS"), function($query) use($id_empresa){
+                            $query->where("id_empresa", $id_empresa);
+                        })
+                        ->get();
         return EmpleadoResource::collection($empleados);
     }
 
@@ -158,9 +179,7 @@ class EmpleadoService{
         return new EmpleadoResource($empleado);
     }
 
-    public function finalizarContrato(int $idEmpleadoContrato) : string{
-
-        $fechaCese = Carbon::now()->format("Y-m-d");
+    public function finalizarContrato(int $idEmpleadoContrato, string $fechaCese) : string{
         $empleadoContrato = EmpleadoContrato::findOrFail($idEmpleadoContrato);
         $empleadoContrato->update([
             "fecha_fin"=>$fechaCese

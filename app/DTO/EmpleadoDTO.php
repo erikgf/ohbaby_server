@@ -17,4 +17,10 @@ class EmpleadoDTO {
     public array $contratos;
     public ?int $id_empresa;
     public ?int $numero_orden;
+    public ?string $celular;
+    public string $sexo;
+    public ?string $telefono_referencia;
+    public ?string $nombre_familiar;
+    public string $puesto;
+    public string $estado_civil;
 }
