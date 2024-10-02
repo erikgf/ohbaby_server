@@ -20,7 +20,8 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
     public function run(): void
     {
         //
-        $this->v_20240808_01();
+        //$this->v_20240808_01();
+        $this->v_202401002_01();
     }
 
     private function insertarAsistenciaMasiva(string $archivo): void{
@@ -44,6 +45,10 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
                 $horaEntradaTarde = $colValues["hora_entrada_ta"]  == "" ? null : $colValues["hora_entrada_ta"];
                 $horaSalidaTarde = $colValues["hora_salida_ta"] == "" ? null : $colValues["hora_salida_ta"];
 
+                $horasMañana = $this->tiempoDecimalPorHora($horaSalidaMañana) - $this->tiempoDecimalPorHora($horaEntradaMañana);
+                $horasTarde = $this->tiempoDecimalPorHora($horaSalidaTarde) - $this->tiempoDecimalPorHora($horaEntradaTarde);
+                $totalHoras = $horasMañana + $horasTarde;
+
                 //$empleado = Empleado::with("contratoActivo")->where(["codigo_unico"=>$codigo])->first();
                 $empleadoContratoActivo = EmpleadoContrato::whereHas("empleado",
                     function($q) use($codigo){
@@ -53,7 +58,8 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
                     ->first();
 
                 if (!$empleadoContratoActivo){
-                    throw new \Exception("No existe contrato con el usuario de codigo {$codigo}", 1);
+                    //throw new \Exception("No existe contrato con el usuario de codigo {$codigo}", 1);
+                    continue;
                 }
 
                 $idPuntoAcceso  = 1;
@@ -67,6 +73,7 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
                     "hora_entrada_tarde" => $horaEntradaTarde,
                     "hora_salida_tarde" => $horaSalidaTarde,
                     "id_punto_acceso"=>$idPuntoAcceso,
+                    "total_horas"=>$totalHoras
                 ]);
 
                 $this->command->info('OK '.json_encode($item));
@@ -78,11 +85,63 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
         fclose($csvFile);
     }
 
+    private function tiempoDecimalPorHora($hora){
+        if ($hora == null){
+            return 0;
+        }
+
+        $cadenaHoras = strlen($hora);
+        $esCadenaValida = $cadenaHoras === 8 || $cadenaHoras === 5;
+        $esConsideraSegundos = $cadenaHoras === 8;
+
+        $arregloHoras = explode(":", $hora);
+        $esArregloValido = $esConsideraSegundos
+                                ? count($arregloHoras) == 3
+                                : count($arregloHoras) == 2;
+
+        $esHoraValida =  $esCadenaValida && $esArregloValido;
+
+        if (!$esHoraValida){
+            return 0;
+        }
+
+        if ($esConsideraSegundos){
+            [$hora, $min, $seg] = $arregloHoras;
+        } else {
+            [$hora, $min] = $arregloHoras;
+            $seg = 0;
+        }
+
+        $horasDec = $hora * 1.0;
+        $minDec = $min / 60.0;
+        $segDec = $seg / 3600.00;
+
+        return $horasDec + $minDec + $segDec;
+    }
+
     private function v_20240808_01(): void{
 
         DB::beginTransaction();
 
         $archivo = "asistencias_masivas_v_20240808_01.csv";
+        AsistenciaRegistroEmpleado::where("fecha",">=","2024-07-01")->forceDelete();
+
+        try {
+            $this->insertarAsistenciaMasiva($archivo);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->command->error("ERROR {$th->getMessage()}");
+        }
+
+        DB::commit();
+    }
+
+    private function v_202401002_01(): void{
+
+        DB::beginTransaction();
+
+        $archivo = "asistencias_masivas_v_202401002_01.csv";
+        AsistenciaRegistroEmpleado::where("fecha",">=","2024-09-01")->forceDelete();
 
         try {
             $this->insertarAsistenciaMasiva($archivo);

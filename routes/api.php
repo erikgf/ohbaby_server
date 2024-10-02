@@ -11,6 +11,7 @@ use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\HorarioEmpleadoContratoController;
 use App\Http\Controllers\MarcadoEmpleadoController;
 use App\Http\Controllers\ProvinciaUbigeoController;
+use App\Http\Controllers\ReporteAsistenciaRegistroEmpleado;
 use App\Http\Controllers\SesionController;
 use App\Http\Controllers\TipoEntregaController;
 use App\Http\Controllers\UsuarioController;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::post("sesion/iniciar", [SesionController::class, "iniciarSesion"]);
+Route::get("/reporte-asistencias", [ReporteAsistenciaRegistroEmpleado::class, "index"]);
 
 Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::post("sesion/cerrar", [SesionController::class, "cerrarSesion"]);
@@ -57,5 +59,8 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::post("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "store"]);
     Route::get("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "consultar"]);
     Route::get("/asistencia-registro-empleado/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataControlSeguridad"]);
+
+    Route::get("/reporte-asistencia-registros/asistencias", [ReporteAsistenciaRegistroEmpleado::class, "asistencias"]);
+    Route::get("/reporte-asistencia-registros/sueldos", [ReporteAsistenciaRegistroEmpleado::class, "sueldos"]);
 
 });

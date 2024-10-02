@@ -17,7 +17,7 @@ class AsistenciaRegistroEmpleado extends Model
     ];
 
     protected $fillable = [
-        'id_empleado_contrato', 'fecha', 'hora_entrada_mañana', 'hora_salida_mañana', 'hora_entrada_tarde', 'hora_salida_tarde', 'numero_dia_semana', 'id_punto_acceso'
+        'id_empleado_contrato', 'fecha', 'hora_entrada_mañana', 'hora_salida_mañana', 'hora_entrada_tarde', 'hora_salida_tarde', 'numero_dia_semana', 'id_punto_acceso',"total_horas"
     ];
 
 
@@ -34,6 +34,12 @@ class AsistenciaRegistroEmpleado extends Model
     public function empleado(): HasOne
     {
         return $this->hasOne(EmpleadoContrato::class, 'id', 'id_empleado_contrato');
+    }
+
+    public function empleadoBase() {
+        return $this->hasOneThrough(Empleado::class, EmpleadoContrato::class,
+                            "id", "id",
+                            "id_empleado_contrato", "id_empleado");
     }
 
 }
