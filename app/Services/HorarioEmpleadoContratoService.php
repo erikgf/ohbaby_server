@@ -30,7 +30,6 @@ class HorarioEmpleadoContratoService{
 
     public function registrar(int $idHorario, array $empleadoContratos){
         $horario = Horario::findOrFail($idHorario);
-
         $now = Carbon::now();
 
         $horario->empleadoContratos()->detach();

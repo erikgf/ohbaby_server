@@ -21,7 +21,8 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
     {
         //
         //$this->v_20240808_01();
-        $this->v_202401002_01();
+        //$this->v_20241002_01();
+        $this->v_20241004_01();
     }
 
     private function insertarAsistenciaMasiva(string $archivo): void{
@@ -136,11 +137,28 @@ class AsistenciaRegistroEmpleadoSeeder extends Seeder
         DB::commit();
     }
 
-    private function v_202401002_01(): void{
+    private function v_20241002_01(): void{
 
         DB::beginTransaction();
 
         $archivo = "asistencias_masivas_v_202401002_01.csv";
+        AsistenciaRegistroEmpleado::where("fecha",">=","2024-09-01")->forceDelete();
+
+        try {
+            $this->insertarAsistenciaMasiva($archivo);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $this->command->error("ERROR {$th->getMessage()}");
+        }
+
+        DB::commit();
+    }
+
+    private function v_20241004_01(): void{
+
+        DB::beginTransaction();
+
+        $archivo = "asistencias_masivas_v_20241004_01.csv";
         AsistenciaRegistroEmpleado::where("fecha",">=","2024-09-01")->forceDelete();
 
         try {
