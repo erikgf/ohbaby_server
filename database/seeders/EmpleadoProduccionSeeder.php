@@ -99,7 +99,7 @@ class EmpleadoProduccionSeeder extends Seeder
                 $contrato = [
                     "dias_trabajo"=>(int) $colValues["dias_trabajo"],
                     "horas_dia"=>(float)  $colValues["horas_dia"],
-                    "salario"=>(float) $colValues["sueldo"],
+                    "salario"=>(float) str_replace(",","",$colValues["sueldo"]),
                     "fecha_inicio"=>"2024/09/01"
                 ];
 
@@ -113,7 +113,7 @@ class EmpleadoProduccionSeeder extends Seeder
         }
 
         $empleadoContratos = EmpleadoContrato::query()->get()->pluck("id");
-        $horarios = (new HorarioEmpleadoContratoService())->registrar((int) $colValues["id_horario"], $empleadoContratos->toArray());
+        (new HorarioEmpleadoContratoService())->registrar((int) $colValues["id_horario"], $empleadoContratos->toArray());
 
         DB::commit();
 
