@@ -27,7 +27,7 @@ class ReporteAsistenciaRegistroEmpleado extends Controller
                                 $q->select("id","tipo");
                             });
                         }])
-                    ->withSum("asistencias", "total_horas" )
+                    ->withSum(["asistencias" => fn($q) =>  $q->whereBetween("fecha", [$data["desde"], $data["hasta"]])], "total_horas" )
                     ->get();
     }
 
