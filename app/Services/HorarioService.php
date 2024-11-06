@@ -15,29 +15,35 @@ class HorarioService{
     use HorarioUtilTrait;
 
     public function registrar(HorarioDTO $horarioDTO) : HorarioResource {
-
-        $horario = Horario::create([
-            "descripcion"=>$horarioDTO->descripcion,
-        ]);
-
         if (count($horarioDTO->horarioDetalles) <= 0){
             throw new \Exception("No se ha enviado detalle de horarios", Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $horarioDetalles = array_map(function($item){
+        $horarioDetalles = [];
+        $totalHorasSemana = 0;
+        for ($i=0; $i < count($horarioDTO->horarioDetalles); $i++) {
+            $item = $horarioDTO->horarioDetalles[$i];
             $dias = $item["dias"];
+            $hora_inicio = $item["hora_inicio"];
+            $hora_fin = $item["hora_fin"];
             /*
             if (!$this->validarSoloSemanaDias($dias)){
                 throw new \Exception("Se está enviando un horario detalle con días no válidos. Lunes a Sábado (1 - 6) ", Response::HTTP_UNPROCESSABLE_ENTITY);
             }
             */
-
-            return new HorarioDetalle([
-                "hora_inicio"=>$item["hora_inicio"],
-                "hora_fin"=>$item["hora_fin"],
+            $totalHorasSemana += $this->obtenerHorasSemanaHorarioDetalle($dias, $hora_inicio, $hora_fin);
+            $horarioDetalles[] = new HorarioDetalle([
+                "hora_inicio"=>$hora_inicio,
+                "hora_fin"=>$hora_fin,
                 "dias"=>$dias,
             ]);
-        }, $horarioDTO->horarioDetalles);
+        }
+
+
+        $horario = Horario::create([
+            "descripcion"=>$horarioDTO->descripcion,
+            "total_horas_semana"=>$totalHorasSemana
+        ]);
 
         $horario->horarioDetalles()->saveMany($horarioDetalles);
         return new HorarioResource($horario);
@@ -46,12 +52,6 @@ class HorarioService{
     public function editar(HorarioDTO $horarioDTO, int $id) : HorarioResource{
 
         $horarioEditado = Horario::findOrFail($id);
-
-        $horarioEditado->fill([
-            "descripcion"=>$horarioDTO->descripcion,
-        ]);
-
-        $horarioEditado->save();
 
         $horarioDetalles = $horarioDTO->horarioDetalles;
         $idDetalles = [];
@@ -93,6 +93,23 @@ class HorarioService{
         }
 
         $horarioEditado->load("horarioDetalles");
+
+        $totalHorasSemana = 0;
+        for ($i=0; $i < count($horarioEditado->horarioDetalles); $i++) {
+            $item = $horarioDTO->horarioDetalles[$i];
+            $dias = $item["dias"];
+            $hora_inicio = $item["hora_inicio"];
+            $hora_fin = $item["hora_fin"];
+            $totalHorasSemana += $this->obtenerHorasSemanaHorarioDetalle($dias, $hora_inicio, $hora_fin);
+        }
+
+        $horarioEditado->fill([
+            "descripcion"=>$horarioDTO->descripcion,
+            "total_horas_semana"=>$totalHorasSemana
+        ]);
+
+        $horarioEditado->save();
+
         return new HorarioResource($horarioEditado);
     }
 

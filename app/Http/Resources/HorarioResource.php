@@ -17,6 +17,7 @@ class HorarioResource extends JsonResource
         return [
             "id"=>$this->id,
             "descripcion"=>$this->descripcion,
+            "total_horas_semana"=>$this->total_horas_semana,
             "detalles"=> HorarioDetalleResource::collection($this->horarioDetalles)
         ];
     }

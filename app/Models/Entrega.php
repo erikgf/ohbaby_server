@@ -13,7 +13,7 @@ class Entrega extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        "id_tipo_entrega","id_empleado_contrato","fecha_registro","monto_entregado", "motivo"
+        "id_tipo_entrega","id_empleado_contrato","fecha_registro","monto_registrado", "motivo"
     ];
 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DTO\EntregaDTO;
+use App\Http\Requests\EntregaEditarRequest;
 use App\Http\Requests\EntregaRequest;
 use App\Http\Resources\EntregaListaResource;
 use App\Services\EntregaService;
@@ -32,9 +33,7 @@ class EntregaController extends Controller
 
         $entregaDTO->id_tipo_entrega = $data["id_tipo_entrega"];
         $entregaDTO->id_empleado_contrato = $data["id_empleado_contrato"];
-        $entregaDTO->fecha_registro = $data["fecha_registro"];
         $entregaDTO->cuotas = $data["cuotas"];
-        $entregaDTO->motivo = $data["motivo"];
 
         DB::beginTransaction();
         $entrega = (new EntregaService)->registrar($entregaDTO);
@@ -54,7 +53,7 @@ class EntregaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(EntregaRequest $request, int $id)
+    public function update(EntregaEditarRequest $request, int $id)
     {
         $data = $request->validated();
 
@@ -62,9 +61,9 @@ class EntregaController extends Controller
 
         $entregaDTO->id_tipo_entrega = $data["id_tipo_entrega"];
         $entregaDTO->id_empleado_contrato = $data["id_empleado_contrato"];
-        $entregaDTO->fecha_registro = $data["fecha_registro"];
-        $entregaDTO->cuotas = $data["cuotas"];
-        $entregaDTO->motivo = $data["motivo"];
+        $entregaDTO->fecha_registro = $data["fecha_cuota"];
+        $entregaDTO->monto_registrado = $data["monto_cuota"];
+        $entregaDTO->motivo = $data["motivo_registro"];
 
         DB::beginTransaction();
         $entrega = (new EntregaService)->editar($entregaDTO, $id);

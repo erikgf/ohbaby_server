@@ -10,5 +10,7 @@ return [
     "TIPO_ENTREGA"=>[
         "ADELANTO"=>"A",
         "DESCUENTO"=>"D"
-    ]
+    ],
+    "MONTO_DESCUENTO_PLANILLA"=>138.25,
+    "DIAS_TRABAJO_MENSUAL" => 26
 ];

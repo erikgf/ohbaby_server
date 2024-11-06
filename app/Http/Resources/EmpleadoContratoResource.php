@@ -23,6 +23,8 @@ class EmpleadoContratoResource extends JsonResource
             "costoDia"=>$this->costo_dia,
             "diasTrabajo"=>$this->dias_trabajo,
             "horasDia"=>$this->horas_dia,
+            "descuentoPlanilla"=>$this->descuento_planilla,
+            "horasSemana"=>$this->horas_semana,
             "empleado"=>new EmpleadoSinContratosResource($this->empleado)
         ];
     }

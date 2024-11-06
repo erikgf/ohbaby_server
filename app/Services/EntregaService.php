@@ -4,8 +4,6 @@ namespace App\Services;
 use App\DTO\EntregaDTO;
 use App\Http\Resources\EntregaListaResource;
 use App\Models\Entrega;
-use App\Models\EntregaCuota;
-use Carbon\Carbon;
 
 class EntregaService{
     public function listar(array $params){
@@ -21,45 +19,43 @@ class EntregaService{
     }
 
     public function registrar(EntregaDTO $entregaDTO) {
-        $registro = Entrega::create([
-            "id_tipo_entrega"=>$entregaDTO->id_tipo_entrega,
-            "id_empleado_contrato"=>$entregaDTO->id_empleado_contrato,
-            "fecha_registro"=>$entregaDTO->fecha_registro,
-            "motivo"=>$entregaDTO->motivo
-        ]);
+        $idRegistros = [];
 
         if ($entregaDTO->cuotas){
-            $fecha_cuota = $entregaDTO->fecha_registro;
-            $monto_registrado = 0.00;
-            foreach($entregaDTO->cuotas as $i => $cuota){
-                $fecha_cuota = Carbon::parse($fecha_cuota)->addMonthsNoOverflow(1)->startOfMonth()->format("Y-m-d");
-                $registro->cuotas()->save(new EntregaCuota([
-                    "numero_cuota" => ($i + 1),
-                    "fecha_cuota" => $fecha_cuota,
-                    "monto_cuota" => $cuota["monto_cuota"],
-                    "es_entregado" => config("globals.ENTREGA.ENTREGADA")
-                ]));
+            foreach($entregaDTO->cuotas as $cuota){
+                $registro = Entrega::create([
+                    "fecha_registro" => $cuota["fecha_cuota"],
+                    "monto_registrado" => $cuota["monto_cuota"],
+                    "motivo" => @$cuota["motivo_registro"],
+                    "id_tipo_entrega"=>$entregaDTO->id_tipo_entrega,
+                    "id_empleado_contrato"=>$entregaDTO->id_empleado_contrato,
+                ]);
 
-                $monto_registrado += $cuota["monto_cuota"];
+                $registro->save();
+                $idRegistros[] = $registro->id;
             }
         }
 
-        $registro->monto_registrado = $monto_registrado;
-        $registro->save();
-
-        $registro->load("tipoEntrega");
-        $registro->load("empleadoContrato.empleado");
-
-        return new EntregaListaResource($registro);
+        $registros = Entrega::query()
+                        ->with(["tipoEntrega", "empleadoContrato.empleado"])
+                        ->whereIn("id", $idRegistros)
+                        ->get();
+        return EntregaListaResource::collection($registros);
     }
 
     public function editar(EntregaDTO $entregaDTO, int $id) {
         $entrega = Entrega::findOrFail($id);
-        $entrega->cuotas()->delete();
-        $entrega->delete();
+        $entrega->fill([
+            "fecha_registro" => $entregaDTO->fecha_registro,
+            "monto_registrado" => $entregaDTO->monto_registrado,
+            "motivo" => @$entregaDTO->motivo,
+            "id_tipo_entrega"=>$entregaDTO->id_tipo_entrega,
+            "id_empleado_contrato"=>$entregaDTO->id_empleado_contrato,
+        ]);
+        $entrega->save();
+        $entrega->load(["tipoEntrega", "empleadoContrato.empleado"]);
 
-        $registro = $this->registrar($entregaDTO);
-        return $registro;
+        return new EntregaListaResource($entrega);
     }
 
     public function eliminar(int $id) : int{

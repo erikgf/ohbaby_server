@@ -24,10 +24,10 @@ class EntregaRequest extends FormRequest
         return [
             "id_tipo_entrega"=>"required|integer|exists:tipo_entregas,id",
             "id_empleado_contrato"=>"required|integer|exists:empleado_contratos,id",
-            "fecha_registro"=>"required|date",
-            "motivo"=>"nullable|string|max:300",
             "cuotas"=>"required|array",
-            "cuotas.*.monto_cuota"=>"required|numeric|between:0,999999.99"
+            "cuotas.*.monto_cuota"=>"required|numeric|between:0,999999.99",
+            "cuotas.*.fecha_cuota"=>"required|date",
+            "cuotas.*.motivo_registro"=>"nullable|string|max:300",
         ];
     }
 }

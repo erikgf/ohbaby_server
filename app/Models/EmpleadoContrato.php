@@ -20,11 +20,12 @@ class EmpleadoContrato extends Model
     ];
 
     protected $fillable = [
-        "id_empleado", "fecha_inicio", "fecha_fin", "salario","costo_hora", "costo_dia", "dias_trabajo", "horas_dia"
+        "id_empleado", "fecha_inicio", "fecha_fin", "salario","horas_semana","costo_hora", "costo_dia", "dias_trabajo", "horas_dia"
     ];
 
     protected $casts = [
         'salario' => 'float',
+        "horas_semana"=> 'float',
         "costo_hora"=>'float',
         "costo_dia"=>'float',
         "horas_dia"=>'float'

@@ -12,7 +12,7 @@ class Horario extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['descripcion'];
+    protected $fillable = ['descripcion', 'total_horas_semana'];
 
     protected $hidden = [
         'created_at',

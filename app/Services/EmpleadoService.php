@@ -7,6 +7,7 @@ use App\Http\Resources\EmpleadoBuscarResource;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
 use App\Models\EmpleadoContrato;
+use App\Models\Horario;
 use App\Traits\EmpleadoUtilTrait;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
@@ -16,6 +17,7 @@ class EmpleadoService{
     use EmpleadoUtilTrait;
 
     public function registrar(EmpleadoDTO $empleadoDTO) : EmpleadoResource {
+        $now = date("Y-m-d H:i:s");
         $empleado = Empleado::create([
             "id_tipo_documento"=>$empleadoDTO->id_tipo_documento,
             "numero_documento"=>$empleadoDTO->numero_documento,
@@ -37,27 +39,37 @@ class EmpleadoService{
             'estado_civil'=>$empleadoDTO->estado_civil
         ]);
 
-        if (count($empleadoDTO->contratos) > 0){
-            $contratos = array_map(function($item){
-                $dias_trabajo = $item["dias_trabajo"];
-                $horas_dia = $item["horas_dia"];
-                $salario = $item["salario"];
+        $dias_trabajo = config("globals.DIAS_TRABAJO_MENSUAL");
 
-                $objCalcular = $this->calcularCostosDiaHora($salario, $dias_trabajo, $horas_dia);
+        if (count($empleadoDTO->contratos) > 0){
+            for ($i=0; $i < count($empleadoDTO->contratos); $i++) {
+                $item = $empleadoDTO->contratos[$i];
+                $salario = $item["salario"];
+                $id_horario = $item["id_horario"];
+
+                $horas_semana = Horario::find($id_horario, ["total_horas_semana"])?->total_horas_semana;
+                $objCalcular = $this->calcularCostosDiaHora($salario, $dias_trabajo, $horas_semana);
                 $costo_hora = $objCalcular["costo_hora"];
                 $costo_dia = $objCalcular["costo_dia"];
+                $horas_dia = $objCalcular["horas_dia"];
 
-                return new EmpleadoContrato([
+                $empleadoContrato = EmpleadoContrato::create([
+                    "id_empleado"=>$empleado->id,
                     "fecha_inicio"=>$item["fecha_inicio"],
                     "salario"=>$salario,
+                    "descuento_planilla"=>$item["descuento_planilla"],
+                    "dias_trabajo"=>$dias_trabajo,
+                    "horas_semana"=>$horas_semana,
                     "costo_hora"=>$costo_hora,
                     "costo_dia"=>$costo_dia,
-                    "dias_trabajo"=>$dias_trabajo,
                     "horas_dia"=>$horas_dia
                 ]);
-            }, $empleadoDTO->contratos);
 
-            $empleado->contratos()->saveMany($contratos);
+                $empleadoContrato->horarios()->attach([$id_horario], [
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]);
+            }
         }
 
         $empleado->load("empresa");
@@ -111,37 +123,43 @@ class EmpleadoService{
             $contratoBorrar->delete();
         }
 
+        $dias_trabajo = config("globals.DIAS_TRABAJO_MENSUAL");
+
         foreach ($contratos as $item) {
             $fecha_inicio = $item["fecha_inicio"];
-            $dias_trabajo = $item["dias_trabajo"];
-            $horas_dia = $item["horas_dia"];
             $salario = $item["salario"];
+            $id_horario = @$item["id_horario"];
 
-            $objCalcular = $this->calcularCostosDiaHora($salario, $dias_trabajo, $horas_dia);
-            $costo_hora = $objCalcular["costo_hora"];
-            $costo_dia = $objCalcular["costo_dia"];
+            if ($id_horario){
+                $horas_semana = Horario::find($id_horario, ["total_horas_semana"])?->total_horas_semana;
+                $objCalcular = $this->calcularCostosDiaHora($salario, $dias_trabajo, $horas_semana);
+                $costo_hora = $objCalcular["costo_hora"];
+                $costo_dia = $objCalcular["costo_dia"];
+                $horas_dia = $objCalcular["horas_dia"];
 
-            if ($item["id"] == NULL){
-                $empleadoContrato = new EmpleadoContrato();
-                $empleadoContrato->create([
-                    "id_empleado"=>$empleadoEditado->id,
-                    "fecha_inicio"=>$fecha_inicio,
-                    "salario"=>$salario,
-                    "costo_hora"=>$costo_hora,
-                    "costo_dia"=>$costo_dia,
-                    "dias_trabajo"=>$dias_trabajo,
-                    "horas_dia"=>$horas_dia
-                ]);
-
-            } else {
-                $empleadoContrato = EmpleadoContrato::findOrFail($item["id"]);
-                $empleadoContrato->update([
-                    "fecha_inicio"=>$fecha_inicio,
-                    "salario"=>$salario,
-                    "costo_hora"=>$costo_hora,
-                    "dias_trabajo"=>$dias_trabajo,
-                    "horas_dia"=>$horas_dia
-                ]);
+                if ($item["id"] == NULL){
+                    $empleadoContrato = new EmpleadoContrato();
+                    $empleadoContrato->create([
+                        "id_empleado"=>$empleadoEditado->id,
+                        "fecha_inicio"=>$fecha_inicio,
+                        "salario"=>$salario,
+                        "descuento_planilla"=>$item["descuento_planilla"],
+                        "costo_hora"=>$costo_hora,
+                        "costo_dia"=>$costo_dia,
+                        "dias_trabajo"=>$dias_trabajo,
+                        "horas_dia"=>$horas_dia
+                    ]);
+                } else {
+                    $empleadoContrato = EmpleadoContrato::findOrFail($item["id"]);
+                    $empleadoContrato->update([
+                        "fecha_inicio"=>$fecha_inicio,
+                        "salario"=>$salario,
+                        "descuento_planilla"=>$item["descuento_planilla"],
+                        "costo_hora"=>$costo_hora,
+                        "dias_trabajo"=>$dias_trabajo,
+                        "horas_dia"=>$horas_dia
+                    ]);
+                }
             }
         }
 
