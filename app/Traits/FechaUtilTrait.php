@@ -57,4 +57,38 @@ trait FechaUtilTrait {
                 return "NINGUNO";
         }
     }
+
+    public function tiempoDecimalPorHora($hora){
+        if ($hora == null){
+            return 0;
+        }
+
+        $cadenaHoras = strlen($hora);
+        $esCadenaValida = $cadenaHoras === 8 || $cadenaHoras === 5;
+        $esConsideraSegundos = $cadenaHoras === 8;
+
+        $arregloHoras = explode(":", $hora);
+        $esArregloValido = $esConsideraSegundos
+                                ? count($arregloHoras) == 3
+                                : count($arregloHoras) == 2;
+
+        $esHoraValida =  $esCadenaValida && $esArregloValido;
+
+        if (!$esHoraValida){
+            return 0;
+        }
+
+        if ($esConsideraSegundos){
+            [$hora, $min, $seg] = $arregloHoras;
+        } else {
+            [$hora, $min] = $arregloHoras;
+            $seg = 0;
+        }
+
+        $horasDec = $hora * 1.0;
+        $minDec = $min / 60.0;
+        $segDec = $seg / 3600.00;
+
+        return $horasDec + $minDec + $segDec;
+    }
 }

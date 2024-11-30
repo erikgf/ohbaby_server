@@ -18,61 +18,52 @@ class AsistenciaRegistroEmpleadoService{
 
     use FechaUtilTrait;
 
-    public function registrar(array $data) : array {
+    public function registrar(array $data) {
         $fecha_hora_registrado = (Carbon::now())->format("d/m/d H:i:s");
 
         $fecha = $data["fecha"];
+
+        AsistenciaRegistroEmpleado::where([
+            "fecha"=>$fecha
+        ])->delete();
+
         $asistencias = $data["asistencias"];
-
-        /*
-
-        */
-
-        $empleado= Empleado::with("contratoActivo")->first();
-
-        if (!$empleado){
-            return [
-                "ok"=>0,
-                "msg"=>"No encontrado"
-            ];
-        }
-
-        $contratoActivo = $empleado?->contratoActivo;
-        if (!$contratoActivo){
-            return [
-                "ok"=>0,
-                "msg"=>"Personal sin contrato activo"
-            ];
-        }
-
-        $idEmpleadoContrato = $contratoActivo->id;
-
-        if ($this->validarRepetidoDia($fecha, $idEmpleadoContrato)){
-            throw new \Exception("Este colaborador ya tiene una asistencia hoy.", Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        $nombreEmpleado = $empleado->nombres." ".$empleado->apellido_paterno." ".$empleado->apellido_materno;
-        $numeroDiaSemana = date('N', strtotime($fecha));
+        $numeroDiaSemana = Carbon::parse($fecha)->dayOfWeek;
 
         $idPuntoAcceso  = 1;
+        $insertAsistencias = [];
 
-        AsistenciaRegistroEmpleado::create([
-            "id_empleado_contrato"=>$idEmpleadoContrato,
-            "fecha"=>$fecha,
-            "numero_dia_semana"=>$numeroDiaSemana,
-            "hora_entrada_mañana" => $data["hora_entrada_mañana"],
-            "hora_salida_mañana" => $data["hora_salida_mañana"],
-            "hora_entrada_tarde" => $data["hora_entrada_tarde"],
-            "hora_salida_tarde" => $data["hora_salida_tarde"],
-            "id_punto_acceso"=>$idPuntoAcceso,
-        ]);
+        foreach ($asistencias as $asistencia) {
+            if ($asistencia["falto"] == "1"){
+                continue;
+            }
 
-        return [
-            "ok"=>1,
-            "msg"=>"Asistencia registrada",
-            "nombre_empleado"=>$nombreEmpleado,
-            "fecha_hora_registrado"=>$fecha_hora_registrado
-        ];
+            $horaEntradaMañana = $asistencia["turno_uno_entrada"];
+            $horaSalidaMañana = $asistencia["turno_uno_salida"];
+            $horaEntradaTarde = @$asistencia["turno_dos_entrada"];
+            $horaSalidaTarde = @$asistencia["turno_dos_entrada"];
+
+            $horasMañana = $this->tiempoDecimalPorHora($horaSalidaMañana) - $this->tiempoDecimalPorHora($horaEntradaMañana);
+            $horasTarde = $this->tiempoDecimalPorHora($horaSalidaTarde) - $this->tiempoDecimalPorHora($horaEntradaTarde);
+            $totalHoras = $horasMañana + $horasTarde;
+
+            $insertAsistencias[] = [
+                "id_empleado_contrato"=>$asistencia["id"],
+                "fecha"=>$fecha,
+                "numero_dia_semana"=>$numeroDiaSemana,
+                "hora_entrada_mañana" => $asistencia["turno_uno_entrada"],
+                "hora_salida_mañana" => $asistencia["turno_uno_salida"],
+                "hora_entrada_tarde" => @$asistencia["turno_dos_entrada"],
+                "hora_salida_tarde" => @$asistencia["turno_dos_entrada"],
+                "id_punto_acceso"=>$idPuntoAcceso,
+                "total_horas"=>$totalHoras,
+                "created_at"=>$fecha_hora_registrado,
+                "updated_at"=>$fecha_hora_registrado
+            ];
+        }
+
+        AsistenciaRegistroEmpleado::insert($insertAsistencias);
+        return count($insertAsistencias);
     }
 
     public function getDataControlSeguridad(string $fecha, string $tipo = "") {
@@ -224,8 +215,22 @@ class AsistenciaRegistroEmpleadoService{
                            "id"
                         ]);
 
+
+        $registros_realizados = AsistenciaRegistroEmpleado::where([
+            "fecha" => $fecha
+        ])
+        ->select([
+            "id_empleado_contrato",
+            "hora_entrada_mañana",
+            "hora_salida_mañana",
+            "hora_entrada_tarde",
+            "hora_salida_tarde"
+        ])
+        ->get();
+
         return  [
                     "registros"=>FormularioAsistenciaResource::collection($registros),
+                    "registros_realizados"=>$registros_realizados,
                     "horarios"=>$horarios->map(function($horario){
                         $horario->horarioDetalles->map(function ($horario_detalle){
                             $horario_detalle->dias = explode(",", $horario_detalle->dias);
