@@ -59,8 +59,9 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::post("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "store"]);
     Route::get("/asistencia-registro-empleado", [AsistenciaRegistroEmpleadoController::class, "consultar"]);
     Route::get("/asistencia-registro-empleado/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataControlSeguridad"]);
+    Route::get("/asistencia-registro-empleado-formulario/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataFormularioAsistencia"]);
 
+    Route::get("/reporte-asistencia-registros/asistencias/excel/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataAsistenciaManual"]);
     Route::get("/reporte-asistencia-registros/asistencias", [ReporteAsistenciaRegistroEmpleado::class, "asistencias"]);
     Route::get("/reporte-asistencia-registros/sueldos", [ReporteAsistenciaRegistroEmpleado::class, "sueldos"]);
-
 });

@@ -36,7 +36,7 @@ class EmpleadoController extends Controller
 
         $empleadoDTO->id_tipo_documento = $data["id_tipo_documento"];
         $empleadoDTO->numero_documento = $data["numero_documento"];
-        $empleadoDTO->codigo_unico = $data["codigo_unico"];
+        //$empleadoDTO->codigo_unico = $data["codigo_unico"];
         $empleadoDTO->apellido_paterno = $data["apellido_paterno"];
         $empleadoDTO->apellido_materno = $data["apellido_materno"];
         $empleadoDTO->fecha_nacimiento = $data["fecha_nacimiento"];
@@ -79,7 +79,7 @@ class EmpleadoController extends Controller
 
         $empleadoDTO->id_tipo_documento = $data["id_tipo_documento"];
         $empleadoDTO->numero_documento = $data["numero_documento"];
-        $empleadoDTO->codigo_unico = $data["codigo_unico"];
+        //$empleadoDTO->codigo_unico = $data["codigo_unico"];
         $empleadoDTO->apellido_paterno = $data["apellido_paterno"];
         $empleadoDTO->apellido_materno = $data["apellido_materno"];
         $empleadoDTO->fecha_nacimiento = $data["fecha_nacimiento"];
@@ -120,14 +120,15 @@ class EmpleadoController extends Controller
     public function finalizarContrato(Request $request, int $idEmpleadoContrato)
     {
         $data = $request->validate([
-            "fecha_cese"=>"required|date"
+            "fecha_cese"=>"required|date",
+            "razon_cese"=>"required|string|max:300",
         ]);
 
         DB::beginTransaction();
-        $fechaCese = (new EmpleadoService)->finalizarContrato($idEmpleadoContrato, $data["fecha_cese"]);
+        [$fechaCese, $razonCese] = (new EmpleadoService)->finalizarContrato($idEmpleadoContrato, $data["fecha_cese"], $data["razon_cese"]);
         DB::commit();
 
-        return $fechaCese;
+        return ["fecha_cese"=>$fechaCese, "razon_cese"=>$razonCese];
     }
 
 }

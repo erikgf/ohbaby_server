@@ -20,7 +20,8 @@ class EmpleadoContrato extends Model
     ];
 
     protected $fillable = [
-        "id_empleado", "fecha_inicio", "fecha_fin", "salario","horas_semana","costo_hora", "costo_dia", "dias_trabajo", "horas_dia"
+        "id_empleado", "fecha_inicio", "fecha_fin", "salario","horas_semana","costo_hora", "costo_dia", "dias_trabajo", "horas_dia",
+        "observaciones_fin_contrato",
     ];
 
     protected $casts = [

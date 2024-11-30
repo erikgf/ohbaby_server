@@ -18,6 +18,7 @@ class EmpleadoContratoSoloContratosResource extends JsonResource
             "id"=>$this->id,
             "fechaInicio"=>$this->fecha_inicio,
             "fechaFin"=>$this->fecha_fin ?? "",
+            "observacionesFinContrato" => $this->observaciones_fin_contrato,
             "salario"=>$this->salario,
             "costoHora"=>$this->costo_hora,
             "costoDia"=>$this->costo_dia,

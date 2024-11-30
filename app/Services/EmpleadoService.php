@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\DTO\EmpleadoDTO;
 use App\Http\Resources\EmpleadoBuscarResource;
+use App\Http\Resources\EmpleadoLightResource;
 use App\Http\Resources\EmpleadoResource;
 use App\Models\Empleado;
 use App\Models\EmpleadoContrato;
@@ -11,6 +12,7 @@ use App\Models\Horario;
 use App\Traits\EmpleadoUtilTrait;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class EmpleadoService{
 
@@ -18,6 +20,16 @@ class EmpleadoService{
 
     public function registrar(EmpleadoDTO $empleadoDTO) : EmpleadoResource {
         $now = date("Y-m-d H:i:s");
+
+        $codigoUnicoExiste = true;
+        while ($codigoUnicoExiste) {
+            $codigo_unico = strtoupper(Str::random(2));
+            $codigoUnicoExiste  = Empleado::query()
+                                        ->whereIn("codigo_unico", [$codigo_unico])
+                                        ->exists();
+        }
+        $empleadoDTO->codigo_unico = $codigo_unico;
+
         $empleado = Empleado::create([
             "id_tipo_documento"=>$empleadoDTO->id_tipo_documento,
             "numero_documento"=>$empleadoDTO->numero_documento,
@@ -84,7 +96,6 @@ class EmpleadoService{
         $empleadoEditado->fill([
             "id_tipo_documento"=>$empleadoDTO->id_tipo_documento,
             "numero_documento"=>$empleadoDTO->numero_documento,
-            "codigo_unico"=>$empleadoDTO->codigo_unico,
             "apellido_paterno"=>$empleadoDTO->apellido_paterno,
             "apellido_materno"=>$empleadoDTO->apellido_materno,
             "fecha_nacimiento"=>$empleadoDTO->fecha_nacimiento,
@@ -182,12 +193,15 @@ class EmpleadoService{
         $id_empresa = @$data["id_empresa"];
 
         $empleados = Empleado::query()
-                        ->with(["contratos","empresa"])
+                        ->with([
+                            "empresa",
+                        ])
+                        ->withCount(["contratoActivo as contrato_activo_con_horario" => fn($q) => $q->whereHas("horarios")])
                         ->when($id_empresa && $id_empresa != config("globals.ID_TODOS_LOS_ITEMS"), function($query) use($id_empresa){
                             $query->where("id_empresa", $id_empresa);
                         })
                         ->get();
-        return EmpleadoResource::collection($empleados);
+        return EmpleadoLightResource::collection($empleados);
     }
 
     public function leer(int $id) : EmpleadoResource{
@@ -197,13 +211,14 @@ class EmpleadoService{
         return new EmpleadoResource($empleado);
     }
 
-    public function finalizarContrato(int $idEmpleadoContrato, string $fechaCese) : string{
+    public function finalizarContrato(int $idEmpleadoContrato, string $fechaFin, string $observacionesFinContrato) : array{
         $empleadoContrato = EmpleadoContrato::findOrFail($idEmpleadoContrato);
         $empleadoContrato->update([
-            "fecha_fin"=>$fechaCese
+            "fecha_fin"=>$fechaFin,
+            "observaciones_fin_contrato" => $observacionesFinContrato
         ]);
 
-        return $fechaCese;
+        return [$fechaFin, $observacionesFinContrato];
     }
 
     public function buscarTerm(string $searchTerm){

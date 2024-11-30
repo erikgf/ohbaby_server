@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use App\Http\Resources\FormularioAsistenciaResource;
+use App\Http\Resources\ReporteAsistenciaDiaResource;
 use App\Models\Empleado;
 use App\Models\AsistenciaRegistroEmpleado;
 use App\Models\EmpleadoContrato;
 use App\Models\Empresa;
+use App\Models\Horario;
 use App\Traits\FechaUtilTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\DNS1D;
-use Milon\Barcode\Facades\DNS1DFacade;
 
 class AsistenciaRegistroEmpleadoService{
 
@@ -20,13 +21,14 @@ class AsistenciaRegistroEmpleadoService{
     public function registrar(array $data) : array {
         $fecha_hora_registrado = (Carbon::now())->format("d/m/d H:i:s");
 
-        $codigo_unico = $data["codigo_unico"];
         $fecha = $data["fecha"];
-        //$id_punto_acceso = $data["id_punto_acceso"];
+        $asistencias = $data["asistencias"];
 
-        $empleado= Empleado::with("contratoActivo")
-                            ->where(["codigo_unico"=>$codigo_unico])
-                            ->first();
+        /*
+
+        */
+
+        $empleado= Empleado::with("contratoActivo")->first();
 
         if (!$empleado){
             return [
@@ -74,7 +76,6 @@ class AsistenciaRegistroEmpleadoService{
     }
 
     public function getDataControlSeguridad(string $fecha, string $tipo = "") {
-
         $time = strtotime($fecha);
         $diaSemana = $this->getDiaSemanaNombre(date('N', $time));
         $dia = date('d', $time);
@@ -171,6 +172,133 @@ class AsistenciaRegistroEmpleadoService{
 
     public function validarRepetidoDia(string $fecha, int $id_empleado_contrato){
         return  AsistenciaRegistroEmpleado::where(["fecha"=>$fecha, "id_empleado_contrato"=>$id_empleado_contrato])->exists();
+    }
+
+    public function getDataFormularioAsistencia(string $fecha){
+        $registros = Empleado::query()
+                ->whereHas("contratos", function($q) use($fecha){
+                    $q->whereNull("fecha_fin");
+                    $q->orWhere( function($q) use ($fecha) {
+                        $q->where("fecha_inicio", "<=", $fecha);
+                        $q->where("fecha_fin", ">=", $fecha);
+                    });
+                })
+                ->with([
+                    "contratos" => function($q) use($fecha){
+                        $q->with([
+                            "horarios" => fn($q) => $q->select("id")
+                        ]);
+                        $q->whereNull("fecha_fin");
+                        $q->orWhere( function($q) use ($fecha) {
+                            $q->where("fecha_inicio", "<=", $fecha);
+                            $q->where("fecha_fin", ">=", $fecha);
+                        });
+                        $q->select("id", "id_empleado");
+                    }
+                ])
+                ->select("id", "codigo_unico", "apellido_paterno", "apellido_materno", "nombres")
+                ->orderBy("apellido_paterno")
+                ->get();
+
+        $horariosId = [];
+        foreach ($registros as $empleado) {
+            foreach ($empleado->contratos as $contrato) {
+                foreach ($contrato->horarios as $horario) {
+                    $horariosId[] = $horario->id;
+                }
+            }
+        }
+
+        $horariosId = array_values(array_unique($horariosId));
+
+        $horarios = Horario::query()
+                        ->with([
+                            "horarioDetalles" => function($q) {
+                                $q->select("id_horario", "hora_inicio", "hora_fin", "dias");
+                                $q->orderBy("dias");
+                                $q->orderBy("hora_inicio");
+                            }
+                        ])
+                        ->whereIn("id", $horariosId)
+                        ->get([
+                           "id"
+                        ]);
+
+        return  [
+                    "registros"=>FormularioAsistenciaResource::collection($registros),
+                    "horarios"=>$horarios->map(function($horario){
+                        $horario->horarioDetalles->map(function ($horario_detalle){
+                            $horario_detalle->dias = explode(",", $horario_detalle->dias);
+                            return $horario_detalle;
+                        });
+                        return $horario;
+                    })
+                ];
+    }
+
+    public function getDataAsistenciaManual(string $fecha){
+        $registros = Empresa::query()
+                        ->whereHas("empleados")
+                        ->with([
+                            "empleados" => function($q) use($fecha){
+                                $q->with([
+                                    "contratos" => function($q) use($fecha){
+                                        $q->with([
+                                            "horarios" => fn($q) => $q->select("id")
+                                        ]);
+                                        $q->whereNull("fecha_fin");
+                                        $q->orWhere( function($q) use ($fecha) {
+                                            $q->where("fecha_inicio", "<=", $fecha);
+                                            $q->where("fecha_fin", ">=", $fecha);
+                                        });
+                                        $q->select("id", "id_empleado");
+                                    }
+                                ]);
+                                $q->select("id", "id_empresa", "codigo_unico", "apellido_paterno", "apellido_materno", "nombres");
+                                $q->orderBy("numero_orden");
+                            }
+                        ])
+                        ->select("id", "razon_social")
+                        ->get();
+
+        $horariosId = [];
+        foreach ($registros as $item) {
+            foreach ($item->empleados as $empleado) {
+                foreach ($empleado->contratos as $contrato) {
+                    foreach ($contrato->horarios as $horario) {
+                        $horariosId[] = $horario->id;
+                    }
+                }
+            }
+        }
+
+        $horariosId = array_values(array_unique($horariosId));
+
+        $horarios = Horario::query()
+                        ->with([
+                            "horarioDetalles" => function($q) {
+                                $q->select("id_horario", "hora_inicio", "hora_fin", "dias");
+                                $q->orderBy("dias");
+                                $q->orderBy("hora_inicio");
+                            }
+                        ])
+                        ->whereIn("id", $horariosId)
+                        ->get([
+                           "id"
+                        ]);
+
+        return  [
+                    "registros"=>ReporteAsistenciaDiaResource::collection($registros),
+                    "horarios"=>$horarios->map(function($horario){
+                        $horario->horarioDetalles->map(function ($horario_detalle){
+                            $horario_detalle->dias = explode(",", $horario_detalle->dias);
+                            $horario_detalle->fecha_inicio = substr($horario_detalle->fecha_inicio, 0, 5);
+                            $horario_detalle->fecha_fin = substr($horario_detalle->fecha_fin, 0, 5);
+                            return $horario_detalle;
+                        });
+                        return $horario;
+                    })
+                ];
     }
 
 }

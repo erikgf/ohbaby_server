@@ -35,7 +35,16 @@ class AsistenciaRegistroEmpleadoController extends Controller
 
     public function getDataControlSeguridad(string $fecha)
     {
-        $res =  (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha);
-        return $res;
+        return (new AsistenciaRegistroEmpleadoService)->getDataControlSeguridad($fecha);
+    }
+
+    public function getDataFormularioAsistencia(string $fecha)
+    {
+        return (new AsistenciaRegistroEmpleadoService)->getDataFormularioAsistencia($fecha);
+    }
+
+    public function getDataAsistenciaManual(string $fecha)
+    {
+        return (new AsistenciaRegistroEmpleadoService)->getDataAsistenciaManual($fecha);
     }
 }

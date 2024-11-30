@@ -23,7 +23,6 @@ class EmpleadoRequest extends FormRequest
     {
         return [
             "id_tipo_documento"=>"required|string|size:1",
-            "codigo_unico"=>"required|string|max:3",
             "numero_documento"=>"required|string|max:15",
             "apellido_paterno"=>"required|string|max:300",
             "apellido_materno"=>"required|string|max:300",

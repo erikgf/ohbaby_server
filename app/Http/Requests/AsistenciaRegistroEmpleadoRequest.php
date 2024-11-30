@@ -22,12 +22,14 @@ class AsistenciaRegistroEmpleadoRequest extends FormRequest
      */
     public function rules(): array {
         return [
-            "codigo_unico"=>"required|string|size:2",
             "fecha"=>"required|date",
-            "hora_entrada_mañana"=>"required|string|size:5",
-            "hora_salida_mañana"=>"required|string|size:5",
-            "hora_entrada_tarde"=>"required|string|size:5",
-            "hora_salida_tarde"=>"required|string|size:5",
+            "asistencias"=>"required|array",
+            "asistencias.*.id"=>"required|integer",
+            "asistencias.*.turno_uno_entrada"=>"required|date_format:H:i",
+            "asistencias.*.turno_uno_salida"=>"required|date_format:H:i",
+            "asistencias.*.turno_dos_entrada"=>"nullable|date_format:H:i",
+            "asistencias.*.turno_dos_entrada"=>"nullable|date_format:H:i",
+            "asistencias.*.falto"=>"required|integer"
         ];
     }
 }

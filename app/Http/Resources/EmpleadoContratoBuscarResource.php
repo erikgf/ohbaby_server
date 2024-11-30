@@ -24,7 +24,8 @@ class EmpleadoContratoBuscarResource extends JsonResource
             "id"=>$this->id,
             "descripcion"=>$empleadoDesc,
             "fecha_inicio"=>$this->fecha_inicio,
-            "fecha_fin"=>$this->fecha_fin
+            "fecha_fin"=>$this->fecha_fin,
+            "observaciones_fin_contrato" => $this->observaciones_fin_contrato,
         ];
     }
 }
