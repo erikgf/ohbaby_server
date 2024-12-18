@@ -256,6 +256,11 @@ class AsistenciaRegistroEmpleadoService{
                                             $q->where("fecha_inicio", "<=", $fecha);
                                             $q->where("fecha_fin", ">=", $fecha);
                                         });
+                                        $q->with([
+                                            "asistencias" => function($q) use ($fecha){
+                                                $q->where("fecha", "=", $fecha);
+                                            }
+                                        ]);
                                         $q->select("id", "id_empleado");
                                     }
                                 ]);
@@ -297,8 +302,6 @@ class AsistenciaRegistroEmpleadoService{
                     "horarios"=>$horarios->map(function($horario){
                         $horario->horarioDetalles->map(function ($horario_detalle){
                             $horario_detalle->dias = explode(",", $horario_detalle->dias);
-                            $horario_detalle->fecha_inicio = substr($horario_detalle->fecha_inicio, 0, 5);
-                            $horario_detalle->fecha_fin = substr($horario_detalle->fecha_fin, 0, 5);
                             return $horario_detalle;
                         });
                         return $horario;

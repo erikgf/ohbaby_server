@@ -15,10 +15,13 @@ class ReporteAsistenciaDiaResource extends JsonResource
     public function toArray(Request $request): array
     {
         $empleados = $this->empleados->map(function($empleado){
+            $contrato = $empleado->contratos->first();
+
             return [
                 "empleado_nombres" => "{$empleado->nombres} {$empleado->apellido_paterno} {$empleado->apellido_materno}",
                 "empleado_codigo_unico" => $empleado->codigo_unico,
-                "horario_id" => $empleado->contratos->first()?->horarios?->first()?->id
+                "horario_id" => $contrato?->horarios?->first()?->id,
+                "asistencia"=> $contrato?->asistencias?->first()
             ];
         });
 
