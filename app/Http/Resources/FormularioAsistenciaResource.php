@@ -14,12 +14,21 @@ class FormularioAsistenciaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $contrato = $this->contratos->first();
-        return [
-            "id"=>$contrato->id,
-            "empleado_codigo_unico"=>$this->codigo_unico,
-            "empleado_nombres"=>"{$this->nombres} {$this->apellido_paterno} {$this->apellido_materno}",
-            "horario_id"=>$contrato->first()?->horarios?->first()?->id
+        $empleados = $this->empleados->map(function($empleado){
+            $contrato = $empleado->contratos->first();
+            return [
+                "id"=>$contrato->id,
+                "empleado_nombres" => "{$empleado->nombres} {$empleado->apellido_paterno} {$empleado->apellido_materno}",
+                "empleado_codigo_unico" => $empleado->codigo_unico,
+                "horario_id" => $contrato?->horarios?->first()?->id,
+                "asistencia"=> $contrato?->asistencias?->first()
+            ];
+        });
+
+       return [
+            "empresa_id"=>$this->id,
+            "empresa_nombre"=>$this->razon_social,
+            "registros"=>$empleados,
         ];
     }
 }

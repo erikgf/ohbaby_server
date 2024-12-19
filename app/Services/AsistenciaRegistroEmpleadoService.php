@@ -166,36 +166,48 @@ class AsistenciaRegistroEmpleadoService{
     }
 
     public function getDataFormularioAsistencia(string $fecha){
-        $registros = Empleado::query()
-                ->whereHas("contratos", function($q) use($fecha){
-                    $q->whereNull("fecha_fin");
-                    $q->orWhere( function($q) use ($fecha) {
-                        $q->where("fecha_inicio", "<=", $fecha);
-                        $q->where("fecha_fin", ">=", $fecha);
-                    });
-                })
-                ->with([
-                    "contratos" => function($q) use($fecha){
-                        $q->with([
-                            "horarios" => fn($q) => $q->select("id")
-                        ]);
-                        $q->whereNull("fecha_fin");
-                        $q->orWhere( function($q) use ($fecha) {
-                            $q->where("fecha_inicio", "<=", $fecha);
-                            $q->where("fecha_fin", ">=", $fecha);
-                        });
-                        $q->select("id", "id_empleado");
-                    }
-                ])
-                ->select("id", "codigo_unico", "apellido_paterno", "apellido_materno", "nombres")
-                ->orderBy("apellido_paterno")
-                ->get();
+        $registros = Empresa::query()
+                        ->with([
+                            "empleados"=> function($q) use($fecha){
+                                $q->whereHas("contratos", function($q) use($fecha){
+                                    $q->whereNull("fecha_fin");
+                                    $q->orWhere( function($q) use ($fecha) {
+                                        $q->where("fecha_inicio", "<=", $fecha);
+                                        $q->where("fecha_fin", ">=", $fecha);
+                                    });
+                                });
+                                $q->with([
+                                    "contratos" => function($q) use($fecha){
+                                        $q->with([
+                                            "horarios" => fn($q) => $q->select("id")
+                                        ]);
+                                        $q->whereNull("fecha_fin");
+                                        $q->orWhere( function($q) use ($fecha) {
+                                            $q->where("fecha_inicio", "<=", $fecha);
+                                            $q->where("fecha_fin", ">=", $fecha);
+                                        });
+                                        $q->with([
+                                            "asistencias" => function($q) use ($fecha){
+                                                $q->where("fecha", "=", $fecha);
+                                            }
+                                        ]);
+                                        $q->select("id", "id_empleado");
+                                    }
+                                ]);
+                                $q->select("id", "id_empresa","codigo_unico", "apellido_paterno", "apellido_materno", "nombres");
+                                $q->orderBy("numero_orden");
+                            }
+                        ])
+                        ->select("id", "razon_social")
+                        ->get();
 
         $horariosId = [];
-        foreach ($registros as $empleado) {
-            foreach ($empleado->contratos as $contrato) {
-                foreach ($contrato->horarios as $horario) {
-                    $horariosId[] = $horario->id;
+        foreach ($registros as $item) {
+            foreach ($item->empleados as $empleado) {
+                foreach ($empleado->contratos as $contrato) {
+                    foreach ($contrato->horarios as $horario) {
+                        $horariosId[] = $horario->id;
+                    }
                 }
             }
         }
@@ -215,22 +227,23 @@ class AsistenciaRegistroEmpleadoService{
                            "id"
                         ]);
 
-
+/*
         $registros_realizados = AsistenciaRegistroEmpleado::where([
-            "fecha" => $fecha
-        ])
-        ->select([
-            "id_empleado_contrato",
-            "hora_entrada_mañana",
-            "hora_salida_mañana",
-            "hora_entrada_tarde",
-            "hora_salida_tarde"
-        ])
-        ->get();
+                        "fecha" => $fecha
+                    ])
+                    ->select([
+                        "id_empleado_contrato",
+                        "hora_entrada_mañana",
+                        "hora_salida_mañana",
+                        "hora_entrada_tarde",
+                        "hora_salida_tarde"
+                    ])
+                    ->get();
+                    */
 
         return  [
                     "registros"=>FormularioAsistenciaResource::collection($registros),
-                    "registros_realizados"=>$registros_realizados,
+                    //"registros_realizados"=>$registros_realizados,
                     "horarios"=>$horarios->map(function($horario){
                         $horario->horarioDetalles->map(function ($horario_detalle){
                             $horario_detalle->dias = explode(",", $horario_detalle->dias);
