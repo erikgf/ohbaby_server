@@ -18,7 +18,7 @@ class EmpleadoService{
 
     use EmpleadoUtilTrait;
 
-    public function registrar(EmpleadoDTO $empleadoDTO) : EmpleadoResource {
+    public function registrar(EmpleadoDTO $empleadoDTO) : EmpleadoLightResource {
         $now = date("Y-m-d H:i:s");
 
         $codigoUnicoExiste = true;
@@ -48,7 +48,8 @@ class EmpleadoService{
             "telefono_referencia"=>$empleadoDTO->telefono_referencia,
             "nombre_familiar"=>$empleadoDTO->nombre_familiar,
             "puesto"=>$empleadoDTO->puesto,
-            'estado_civil'=>$empleadoDTO->estado_civil
+            'estado_civil'=>$empleadoDTO->estado_civil,
+            'fecha_ingreso'=>$empleadoDTO->fecha_ingreso
         ]);
 
         $dias_trabajo = config("globals.DIAS_TRABAJO_MENSUAL");
@@ -69,7 +70,7 @@ class EmpleadoService{
                     "id_empleado"=>$empleado->id,
                     "fecha_inicio"=>$item["fecha_inicio"],
                     "salario"=>$salario,
-                    "descuento_planilla"=>$item["descuento_planilla"],
+                    "descuento_planilla"=>@$item["descuento_planilla"] ?? "0.00",
                     "dias_trabajo"=>$dias_trabajo,
                     "horas_semana"=>$horas_semana,
                     "costo_hora"=>$costo_hora,
@@ -86,10 +87,10 @@ class EmpleadoService{
 
         $empleado->load("empresa");
 
-        return new EmpleadoResource($empleado);
+        return new EmpleadoLightResource($empleado);
     }
 
-    public function editar(EmpleadoDTO $empleadoDTO, int $id) : EmpleadoResource{
+    public function editar(EmpleadoDTO $empleadoDTO, int $id) : EmpleadoLightResource{
 
         $empleadoEditado = Empleado::findOrFail($id);
 
@@ -110,7 +111,8 @@ class EmpleadoService{
             "telefono_referencia"=>$empleadoDTO->telefono_referencia,
             "nombre_familiar"=>$empleadoDTO->nombre_familiar,
             "puesto"=>$empleadoDTO->puesto,
-            'estado_civil'=>$empleadoDTO->estado_civil
+            'estado_civil'=>$empleadoDTO->estado_civil,
+            'fecha_ingreso'=>$empleadoDTO->fecha_ingreso
         ]);
 
         $empleadoEditado->save();
@@ -148,36 +150,47 @@ class EmpleadoService{
                 $costo_dia = $objCalcular["costo_dia"];
                 $horas_dia = $objCalcular["horas_dia"];
 
+                $now = now();
+
                 if ($item["id"] == NULL){
                     $empleadoContrato = new EmpleadoContrato();
                     $empleadoContrato->create([
                         "id_empleado"=>$empleadoEditado->id,
                         "fecha_inicio"=>$fecha_inicio,
                         "salario"=>$salario,
-                        "descuento_planilla"=>$item["descuento_planilla"],
+                        "descuento_planilla"=>@$item["descuento_planilla"] ?? "0.00",
                         "costo_hora"=>$costo_hora,
                         "costo_dia"=>$costo_dia,
                         "dias_trabajo"=>$dias_trabajo,
                         "horas_dia"=>$horas_dia
                     ]);
+
                 } else {
                     $empleadoContrato = EmpleadoContrato::findOrFail($item["id"]);
                     $empleadoContrato->update([
                         "fecha_inicio"=>$fecha_inicio,
                         "salario"=>$salario,
-                        "descuento_planilla"=>$item["descuento_planilla"],
+                        "descuento_planilla"=>@$item["descuento_planilla"] ?? "0.00",
                         "costo_hora"=>$costo_hora,
                         "dias_trabajo"=>$dias_trabajo,
                         "horas_dia"=>$horas_dia
                     ]);
+
+                    $empleadoContrato->horarios()->detach();
                 }
+
+                $empleadoContrato->horarios()->attach([$id_horario], [
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ]);
             }
         }
 
-        $empleadoEditado->load("contratos");
+        $empleadoEditado->load("contratoActivo");
         $empleadoEditado->load("empresa");
+        $empleadoEditado->loadCount(["contratoActivo" => fn($q) => $q->whereHas("horarios")]);
 
-        return new EmpleadoResource($empleadoEditado);
+        return new EmpleadoLightResource($empleadoEditado);
     }
 
     public function eliminar(int $id) : int{
@@ -195,8 +208,9 @@ class EmpleadoService{
         $empleados = Empleado::query()
                         ->with([
                             "empresa",
+                            "contratoActivo"
                         ])
-                        ->withCount(["contratoActivo as contrato_activo_con_horario" => fn($q) => $q->whereHas("horarios")])
+                        ->withCount(["contratoActivo" => fn($q) => $q->whereHas("horarios")])
                         ->when($id_empresa && $id_empresa != config("globals.ID_TODOS_LOS_ITEMS"), function($query) use($id_empresa){
                             $query->where("id_empresa", $id_empresa);
                         })

@@ -53,6 +53,7 @@ class EmpleadoController extends Controller
         $empleadoDTO->nombre_familiar = @$data["nombre_familiar"];
         $empleadoDTO->puesto = $data["puesto"];
         $empleadoDTO->estado_civil = $data["estado_civil"];
+        $empleadoDTO->fecha_ingreso = $data["fecha_ingreso"];
 
         DB::beginTransaction();
         $empleado =  (new EmpleadoService)->registrar($empleadoDTO);
@@ -96,6 +97,7 @@ class EmpleadoController extends Controller
         $empleadoDTO->nombre_familiar = @$data["nombre_familiar"];
         $empleadoDTO->puesto = @$data["puesto"];
         $empleadoDTO->estado_civil = @$data["estado_civil"];
+        $empleadoDTO->fecha_ingreso = $data["fecha_ingreso"];
 
         DB::beginTransaction();
         $empleado = (new EmpleadoService)->editar($empleadoDTO, $id);

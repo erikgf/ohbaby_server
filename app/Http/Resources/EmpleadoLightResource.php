@@ -31,8 +31,12 @@ class EmpleadoLightResource extends JsonResource
             "empresaDesc"=> $empresa?->razon_social ?? "",
             "numeroOrden"=>$this->numero_orden,
             "numero_orden"=>$this->numero_orden,
-            "tieneHorarios"=>$this->contrato_activo_con_horario > 0 ? 'SÍ' : 'NO',
+            "tieneHorarios"=>$this->contrato_activo_count > 0 ? 'SÍ' : 'NO',
             "pais"=>$this->pais,
+            "fechaIngresoRaw"=>$this->fecha_ingreso,
+            "fechaIngreso"=>is_null($this->fecha_ingreso) ? "" : date("d-m-Y", strtotime($this->fecha_ingreso)),
+            "costoHora"=>$this->contratoActivo?->costo_hora,
+            "horasSemana"=>$this->contratoActivo?->horas_semana
         ];
     }
 }

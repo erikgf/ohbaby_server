@@ -15,7 +15,7 @@ class Empleado extends Model
     protected $fillable = ['id_tipo_documento', 'numero_documento', 'apellido_paterno','apellido_materno','nombres',
                             'codigo_unico','direccion','distrito_ubigeo', 'pais', 'fecha_nacimiento',
                             'id_empresa','numero_orden',
-                            'celular','sexo','telefono_referencia','nombre_familiar','puesto','estado_civil'];
+                            'celular','sexo','telefono_referencia','nombre_familiar','puesto','estado_civil','fecha_ingreso'];
 
     protected $hidden = [
         'created_at',

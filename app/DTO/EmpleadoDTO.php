@@ -23,4 +23,6 @@ class EmpleadoDTO {
     public ?string $nombre_familiar;
     public string $puesto;
     public string $estado_civil;
+    public string $fecha_ingreso;
+
 }

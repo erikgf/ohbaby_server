@@ -26,7 +26,7 @@ class EmpleadoRequest extends FormRequest
             "numero_documento"=>"required|string|max:15",
             "apellido_paterno"=>"required|string|max:300",
             "apellido_materno"=>"required|string|max:300",
-            "fecha_nacimiento"=>"nullable|date|max:300",
+            "fecha_nacimiento"=>"nullable|date",
             "nombres"=>"required|string|max:300",
             "direccion"=>"nullable|string|max:300",
             "distrito_ubigeo"=>"nullable|string|size:6",
@@ -45,6 +45,7 @@ class EmpleadoRequest extends FormRequest
             "puesto"=>"required|string|max:200",
             "sexo"=>"required|string|size:1|in:M,F",
             "estado_civil"=>"required|string|size:1|in:S,C,V,D",
+            "fecha_ingreso"=>"required|date"
         ];
     }
 }

@@ -42,6 +42,8 @@ class EmpleadoResource extends JsonResource
             "puesto"=> $this->puesto,
             "estadoCivil"=> $this->estado_civil,
             "celular"=> $this->celular,
+            "fechaIngreso"=>date("d-m-Y", strtotime($this->fecha_ingreso)),
+            "fechaIngresoRaw"=>$this->fecha_ingreso
         ];
     }
 }
