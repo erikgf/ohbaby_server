@@ -29,7 +29,7 @@ class EntregaListaResource extends JsonResource
             "empleado_contrato_desc"=>$empleadoDesc,
             "fecha_registro"=>Carbon::parse($this->fecha_registro)->format("d-m-Y"),
             "fecha_registro_raw"=>$this->fecha_registro,
-            "monto_registrado"=>number_format($this->monto_registrado, 2),
+            "monto_registrado"=>number_format($this->monto_registrado, 3),
             "motivo"=>$this->motivo
         ];
     }

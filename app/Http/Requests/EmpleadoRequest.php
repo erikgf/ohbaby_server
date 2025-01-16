@@ -34,7 +34,7 @@ class EmpleadoRequest extends FormRequest
             "contratos"=>"nullable|array",
             "contratos.*.id"=>"nullable|integer",
             "contratos.*.fecha_inicio"=>"required|date",
-            "contratos.*.descuento_planilla"=>"required|numeric|min:0|max:99999999",
+            "contratos.*.descuento_planilla"=>"nullable|numeric|min:0|max:99999999",
             "contratos.*.salario"=>"required|numeric|min:0|max:99999999",
             "contratos.*.id_horario"=>"nullable|integer|exists:horarios,id",
             "id_empresa"=>"required|integer",
