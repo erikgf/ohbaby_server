@@ -12,6 +12,7 @@ use App\Http\Controllers\HorarioController;
 use App\Http\Controllers\HorarioEmpleadoContratoController;
 use App\Http\Controllers\MarcadoEmpleadoController;
 use App\Http\Controllers\ProvinciaUbigeoController;
+use App\Http\Controllers\ReporteAsistenciaEmpleadoController;
 use App\Http\Controllers\ReporteAsistenciaRegistroEmpleado;
 use App\Http\Controllers\SesionController;
 use App\Http\Controllers\TipoEntregaController;
@@ -72,6 +73,7 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::post("/asistencia-empleados", [AsistenciaEmpleadoController::class, "store"]);
     Route::delete("/asistencia-empleados/{id}", [AsistenciaEmpleadoController::class, "destroy"]);
 
-
+    Route::get("/reporte-asistencia-empleados/asistencias", [ReporteAsistenciaEmpleadoController::class, "asistencias"]);
+    Route::get("/reporte-asistencia-empleados/sueldos", [ReporteAsistenciaEmpleadoController::class, "sueldos"]);
 
 });

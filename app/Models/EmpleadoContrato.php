@@ -57,8 +57,12 @@ class EmpleadoContrato extends Model
         return $this->hasMany(Entrega::class, "id_empleado_contrato", "id");
     }
 
-    public function asistencias(): HasMany {
+    public function asistenciasOld(): HasMany {
         return $this->hasMany(AsistenciaRegistroEmpleado::class, "id_empleado_contrato", "id");
+    }
+
+    public function asistencias(): HasMany {
+        return $this->hasMany(AsistenciaEmpleado::class, "id_empleado_contrato", "id");
     }
 
 }

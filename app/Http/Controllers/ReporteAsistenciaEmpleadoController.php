@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AsistenciaRegistroEmpleado;
+use App\Models\AsistenciaEmpleado;
 use App\Models\EmpleadoContrato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ReporteAsistenciaRegistroEmpleado extends Controller
+class ReporteAsistenciaEmpleadoController extends Controller
 {
-    //
     public function sueldos(Request $request){
         $data = $request->validate([
             "desde"=>"required|date",
@@ -17,7 +16,7 @@ class ReporteAsistenciaRegistroEmpleado extends Controller
         ]);
 
         return EmpleadoContrato::query()
-                    ->whereHas("asistenciasOld", fn($q) =>  $q->whereBetween("fecha", [$data["desde"], $data["hasta"]]))
+                    ->whereHas("asistencias", fn($q) =>  $q->whereBetween("fecha", [$data["desde"], $data["hasta"]]))
                     ->with([
                         "empleado" => function($q){
                             $q->select("id", "id_empresa", "codigo_unico", "numero_documento", "nombres", "apellido_paterno","apellido_materno");
@@ -29,7 +28,7 @@ class ReporteAsistenciaRegistroEmpleado extends Controller
                             $q->groupBy("id_empleado_contrato","fecha_registro");
                             $q->orderBy("fecha_registro");
                         }])
-                    ->withSum(["asistenciasOld" => fn($q) =>  $q->whereBetween("fecha", [$data["desde"], $data["hasta"]])], "total_horas" )
+                    ->withSum(["asistencias" => fn($q) =>  $q->whereBetween("fecha", [$data["desde"], $data["hasta"]])], "total_horas" )
                     ->get();
     }
 
@@ -39,7 +38,7 @@ class ReporteAsistenciaRegistroEmpleado extends Controller
             "hasta"=>"required|date"
         ]);
 
-        return AsistenciaRegistroEmpleado::query()
+        return AsistenciaEmpleado::query()
                     ->with([
                         "empleadoBase"=>function($q){
                             $q->select("empleados.id", "codigo_unico");
@@ -48,6 +47,6 @@ class ReporteAsistenciaRegistroEmpleado extends Controller
                         }
                     ])
                     ->whereBetween("fecha", [$data["desde"], $data["hasta"]])
-                    ->get(["id","id_empleado_contrato", "fecha", "hora_entrada_mañana", "hora_salida_mañana", "hora_entrada_tarde", "hora_salida_tarde", "total_horas"]);
+                    ->get(["id","id_empleado_contrato", "fecha", "hora_entrada", "hora_salida", "total_horas"]);
     }
 }
