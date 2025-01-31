@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DTO\EmpleadoDTO;
+use App\Http\Requests\EmpleadoMasivoRequest;
 use App\Http\Requests\EmpleadoRequest;
 use App\Services\EmpleadoService;
 use Illuminate\Http\Request;
@@ -131,6 +132,30 @@ class EmpleadoController extends Controller
         DB::commit();
 
         return ["fecha_cese"=>$fechaCese, "razon_cese"=>$razonCese];
+    }
+
+    public function procesarMasivo(EmpleadoMasivoRequest $request){
+        $dataAlta = $request->getValidRecordsAlta();
+        $dataInvalidadosAlta = $request->getInvalidRecordsAlta();
+
+        $dataBaja = $request->getValidRecordsBaja();
+        $dataInvalidadosBaja = $request->getInvalidRecordsBaja();
+
+        DB::beginTransaction();
+        $resultado = (new EmpleadoService)->upsertMasivo($dataAlta, $dataBaja);
+        DB::commit();
+
+        return response()->json([
+            "message"=>"Proceso completado",
+            "insertados_records_count"=>$resultado["insertados_count"],
+            "editados_records_count"=>$resultado["editados_count"],
+            "eliminados_records_count"=>$resultado["eliminados_count"],
+            "upsertados_records_count"=>$resultado["insertados_count"] + $resultado["editados_count"],
+            "correctos_records_count"=>$resultado["insertados_count"] + $resultado["editados_count"] + $resultado["eliminados_count"],
+            "invalid_records_count"=>count($dataInvalidadosAlta) + count($dataInvalidadosBaja),
+            "alta_invalid_records"=>$dataInvalidadosAlta,
+            "baja_invalid_records"=>$dataInvalidadosBaja,
+        ]);
     }
 
 }

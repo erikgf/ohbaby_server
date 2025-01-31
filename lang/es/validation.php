@@ -130,6 +130,7 @@ return [
     */
 
     'custom' => [
+        'unique_attribute_in_array' => 'Los registros de :array contienen los siguientes valores de :attribute duplicados: :duplicates.',
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],

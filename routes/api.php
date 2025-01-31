@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AsistenciaEmpleadoController;
 use App\Http\Controllers\AsistenciaRegistroEmpleadoController;
 use App\Http\Controllers\DepartamentoUbigeoController;
 use App\Http\Controllers\DistritoUbigeoController;
@@ -37,6 +38,7 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
 
     Route::apiResource("empleados-contratos", EmpleadoContratoController::class);
     Route::apiResource("empleados", EmpleadoController::class);
+    Route::post("empleados-masivo", [EmpleadoController::class, "procesarMasivo"]);
     Route::apiResource("horarios", HorarioController::class);
     Route::apiResource("usuarios", UsuarioController::class);
     Route::apiResource("entregas", EntregaController::class);
@@ -64,4 +66,12 @@ Route::group(["middleware"=>['auth:sanctum']], function(){
     Route::get("/reporte-asistencia-registros/asistencias/excel/{fecha}", [AsistenciaRegistroEmpleadoController::class, "getDataAsistenciaManual"]);
     Route::get("/reporte-asistencia-registros/asistencias", [ReporteAsistenciaRegistroEmpleado::class, "asistencias"]);
     Route::get("/reporte-asistencia-registros/sueldos", [ReporteAsistenciaRegistroEmpleado::class, "sueldos"]);
+
+    Route::get("/asistencia-empleados-lista", [AsistenciaEmpleadoController::class, "getEmpleados"]);
+    Route::get("/asistencia-empleados", [AsistenciaEmpleadoController::class, "index"]);
+    Route::post("/asistencia-empleados", [AsistenciaEmpleadoController::class, "store"]);
+    Route::delete("/asistencia-empleados/{id}", [AsistenciaEmpleadoController::class, "destroy"]);
+
+
+
 });

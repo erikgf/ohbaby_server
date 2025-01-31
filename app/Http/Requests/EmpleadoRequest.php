@@ -38,7 +38,6 @@ class EmpleadoRequest extends FormRequest
             "contratos.*.salario"=>"required|numeric|min:0|max:99999999",
             "contratos.*.id_horario"=>"nullable|integer|exists:horarios,id",
             "id_empresa"=>"required|integer",
-            "numero_orden"=>"required|integer",
             "celular"=>"nullable|string|max:15|unique:empleados,celular,".$this->empleado,
             "telefono_referencia"=>"nullable|string|max:15",
             "nombre_familiar"=>"nullable|string|max:200",
