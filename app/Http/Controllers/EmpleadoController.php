@@ -47,7 +47,6 @@ class EmpleadoController extends Controller
         $empleadoDTO->pais = $data["pais"] ?? NULL;
         $empleadoDTO->contratos = $data["contratos"] ?? [];
         $empleadoDTO->id_empresa = $data["id_empresa"];
-        $empleadoDTO->numero_orden = $data["numero_orden"];
         $empleadoDTO->celular = @$data["celular"];
         $empleadoDTO->sexo = $data["sexo"];
         $empleadoDTO->telefono_referencia = @$data["telefono_referencia"];
@@ -81,7 +80,6 @@ class EmpleadoController extends Controller
 
         $empleadoDTO->id_tipo_documento = $data["id_tipo_documento"];
         $empleadoDTO->numero_documento = $data["numero_documento"];
-        //$empleadoDTO->codigo_unico = $data["codigo_unico"];
         $empleadoDTO->apellido_paterno = $data["apellido_paterno"];
         $empleadoDTO->apellido_materno = $data["apellido_materno"];
         $empleadoDTO->fecha_nacimiento = $data["fecha_nacimiento"];
@@ -91,7 +89,6 @@ class EmpleadoController extends Controller
         $empleadoDTO->pais = $data["pais"] ?? NULL;
         $empleadoDTO->contratos = $data["contratos"] ?? [];
         $empleadoDTO->id_empresa = $data["id_empresa"];
-        $empleadoDTO->numero_orden = $data["numero_orden"];
         $empleadoDTO->celular = @$data["celular"];
         $empleadoDTO->sexo = @$data["sexo"];
         $empleadoDTO->telefono_referencia = @$data["telefono_referencia"];
