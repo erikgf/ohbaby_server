@@ -112,7 +112,6 @@ class EmpleadoService{
             "distrito_ubigeo"=>$empleadoDTO->distrito_ubigeo,
             "pais"=>$empleadoDTO->pais,
             "id_empresa"=>$empleadoDTO->id_empresa,
-            "numero_orden"=>$empleadoDTO->numero_orden,
             "celular"=>$empleadoDTO->celular,
             "sexo"=>$empleadoDTO->sexo,
             "telefono_referencia"=>$empleadoDTO->telefono_referencia,
