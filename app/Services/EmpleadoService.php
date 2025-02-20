@@ -144,6 +144,7 @@ class EmpleadoService{
 
         $dias_trabajo = config("globals.DIAS_TRABAJO_MENSUAL");
 
+
         foreach ($contratos as $item) {
             $fecha_inicio = $item["fecha_inicio"];
             $salario = $item["salario"];
@@ -159,8 +160,7 @@ class EmpleadoService{
                 $now = now();
 
                 if ($item["id"] == NULL){
-                    $empleadoContrato = new EmpleadoContrato();
-                    $empleadoContrato->create([
+                    $empleadoContrato =  EmpleadoContrato::create([
                         "id_empleado"=>$empleadoEditado->id,
                         "fecha_inicio"=>$fecha_inicio,
                         "salario"=>$salario,
