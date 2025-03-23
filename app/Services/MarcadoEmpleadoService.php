@@ -9,7 +9,6 @@ use Carbon\Carbon;
 class MarcadoEmpleadoService{
 
     public function registrar(string $codigoUnico) : array {
-
         $empleado= Empleado::with("contratoActivo")
                             ->where(["codigo_unico"=>$codigoUnico])
                             ->first();

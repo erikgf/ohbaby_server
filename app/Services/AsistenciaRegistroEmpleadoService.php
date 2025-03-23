@@ -11,7 +11,7 @@ use App\Models\Empresa;
 use App\Models\Horario;
 use App\Traits\FechaUtilTrait;
 use Carbon\Carbon;
-use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use Milon\Barcode\DNS1D;
 
 class AsistenciaRegistroEmpleadoService{
@@ -143,7 +143,7 @@ class AsistenciaRegistroEmpleadoService{
         }
 
         if ($this->validarRepetidoDia($fecha, $contratoActivo->id)){
-            throw new \Exception("Este colaborador ya tiene una asistencia hoy.", Response::HTTP_UNPROCESSABLE_ENTITY);
+            throw ValidationException::withMessages(["Este colaborador ya tiene una asistencia hoy."]);
         }
 
         $nombreEmpleado = $empleado->nombres." ".$empleado->apellido_paterno." ".$empleado->apellido_materno;
@@ -227,19 +227,6 @@ class AsistenciaRegistroEmpleadoService{
                            "id"
                         ]);
 
-/*
-        $registros_realizados = AsistenciaRegistroEmpleado::where([
-                        "fecha" => $fecha
-                    ])
-                    ->select([
-                        "id_empleado_contrato",
-                        "hora_entrada_mañana",
-                        "hora_salida_mañana",
-                        "hora_entrada_tarde",
-                        "hora_salida_tarde"
-                    ])
-                    ->get();
-                    */
 
         return  [
                     "registros"=>FormularioAsistenciaResource::collection($registros),

@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class EmpleadoService{
 
@@ -132,18 +133,25 @@ class EmpleadoService{
             }
         }
 
-        $contratosBorrar = EmpleadoContrato::whereNotIn("id", $idContratos)->where(["id_empleado"=>$id])->get(["id","fecha_fin"]);
+        $contratosBorrar = EmpleadoContrato::query()
+                                        ->whereNotIn("id", $idContratos)
+                                        ->where(["id_empleado"=>$id])
+                                        ->select("id")
+                                        ->withCount("entregas")
+                                        ->withCount("asistencias")
+                                        ->get();
 
         foreach ($contratosBorrar as $contratoBorrar) {
-            if ($contratoBorrar->fecha_fin != NULL){
-                throw new \Exception("Está intentando eliminar un CONTRATO que ya fue CONCLUIDO.", Response::HTTP_UNPROCESSABLE_ENTITY);
+            if ($contratoBorrar->entregas_count > 0){
+                throw ValidationException::withMessages(["Este CONTRATO tiene registros de ENTREGAS DE DINERO"]);
             }
-
+            if ($contratoBorrar->asistencias_count > 0){
+                throw ValidationException::withMessages(["Este CONTRATO tiene registros de ASISTENCIAS"]);
+            }
             $contratoBorrar->delete();
         }
 
         $dias_trabajo = config("globals.DIAS_TRABAJO_MENSUAL");
-
 
         foreach ($contratos as $item) {
             $fecha_inicio = $item["fecha_inicio"];
@@ -232,7 +240,21 @@ class EmpleadoService{
     }
 
     public function finalizarContrato(int $idEmpleadoContrato, string $fechaFin, string $observacionesFinContrato) : array{
-        $empleadoContrato = EmpleadoContrato::findOrFail($idEmpleadoContrato);
+        $empleadoContrato = EmpleadoContrato::query()
+                                                ->withCount([
+                                                    "asistencias" =>  fn($q) => $q->where("fecha", ">", $fechaFin),
+                                                    "entregas" =>  fn($q) => $q->where("fecha_registro", ">", $fechaFin)
+                                                ])
+                                                ->findOrFail($idEmpleadoContrato);
+
+        if ($empleadoContrato->asistencias_count > 0){
+            throw ValidationException::withMessages(["No puedo finalizar el contrato, existen asistencias con una fecha posterior a la FECHA DE FIN de este contrato."]);
+        }
+
+        if ($empleadoContrato->entregas_count > 0){
+            throw ValidationException::withMessages(["No puedo finalizar el contrato, existen registros de descuentos / adelantos con una fecha posterior a la FECHA DE FIN de este contrato."]);
+        }
+
         $empleadoContrato->update([
             "fecha_fin"=>$fechaFin,
             "observaciones_fin_contrato" => $observacionesFinContrato

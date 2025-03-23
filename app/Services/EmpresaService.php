@@ -6,7 +6,7 @@ use App\Models\Empresa;
 class EmpresaService{
 
     public function listarBean(){
-        $empresas = Empresa::all(["id","razon_social as label"]);
+        $empresas = Empresa::query()->get(["id","razon_social as label"]);
         return $empresas;
     }
 

@@ -8,6 +8,7 @@ use App\Models\EmpleadoContrato;
 use App\Models\Horario;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class HorarioEmpleadoContratoService{
 
@@ -40,7 +41,7 @@ class HorarioEmpleadoContratoService{
                 })->count();
 
         if ($cantidadRegistrosRepetidos > 0 ){
-            throw new \Exception("Ya existe algun empleado en otro horario asignado.", Response::HTTP_UNPROCESSABLE_ENTITY);
+            throw ValidationException::withMessages(["Ya existe algún empleado en otro horario asignado."]);
         }
 
         if (count($empleadoContratos) > 0 ){

@@ -8,7 +8,7 @@ use App\Models\Horario;
 use App\Models\HorarioDetalle;
 use App\Traits\HorarioUtilTrait;
 use Illuminate\Http\Resources\Json\ResourceCollection;
-use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 
 class HorarioService{
 
@@ -16,7 +16,7 @@ class HorarioService{
 
     public function registrar(HorarioDTO $horarioDTO) : HorarioResource {
         if (count($horarioDTO->horarioDetalles) <= 0){
-            throw new \Exception("No se ha enviado detalle de horarios", Response::HTTP_UNPROCESSABLE_ENTITY);
+            throw ValidationException::withMessages(["No se ha enviado detalle de horarios."]);
         }
 
         $horarioDetalles = [];
